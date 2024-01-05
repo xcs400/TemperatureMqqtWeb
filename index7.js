@@ -46,7 +46,7 @@ function getCookie(cName) {
 
 idpot1.addEventListener("click", () => {
 document.cookie="SelectedDevice = Yaourt1"         // object
-document.cookie="TitleText = Temperature exterieure sur batterie"  
+document.cookie="TitleText = Temperature balcon sur batterie"  
 document.cookie= "Name_OMG= OMG_ESP32_LORA" 
 document.cookie= "Has_Battery= 1" 
 document.cookie= "Has_Humidity = 0"
@@ -56,7 +56,7 @@ location.reload()
 
 idpot2.addEventListener("click", () => {
 document.cookie="SelectedDevice = Yaourt2"           // object
-document.cookie="TitleText = Vers le bar: Temperature et humidité" 
+document.cookie="TitleText = Sur le bar: Temperature et humidité" 
 document.cookie= "Name_OMG= OMG_ESP32_LORA2" 
 document.cookie= "Has_Battery = 0"
 document.cookie= "Has_Humidity = 1"
@@ -66,7 +66,7 @@ location.reload()
 
 idpot3.addEventListener("click", () => {
 document.cookie="SelectedDevice = 288AD011000"           // object
-document.cookie="TitleText = Vers le Mur Salle à manger " 
+document.cookie="TitleText = Dans la terre du jardin " 
 document.cookie= "Name_OMG= OMG_ESP32_LORA" 
 document.cookie= "Has_Battery = 0"
 document.cookie= "Has_Humidity = 0"
@@ -108,9 +108,9 @@ var voltageHistoryDiv = document.getElementById("voltage-history");
 var humidityHistoryDiv = document.getElementById("humidity-history");
 
 
-var temperatureGaugeDiv = document.getElementById("temperature-gauge");
-var voltageGaugeDiv = document.getElementById("voltage-gauge");
-var batteryGaugeDiv = document.getElementById("battery-gauge");
+//var temperatureGaugeDiv = document.getElementById("temperature-gauge");
+//var voltageGaugeDiv = document.getElementById("voltage-gauge");
+//var batteryGaugeDiv = document.getElementById("battery-gauge");
 
 
 const historyCharts = [
@@ -121,9 +121,9 @@ const historyCharts = [
 ];
 
 const gaugeCharts = [
-  temperatureGaugeDiv,
-  voltageGaugeDiv,
-  batteryGaugeDiv,
+ // temperatureGaugeDiv,
+ // voltageGaugeDiv,
+ // batteryGaugeDiv,
 
 ];
 
@@ -414,9 +414,9 @@ var batteryData = [
 
 var layout = { width: 200, height: 150, margin: { t: 0, b: 0, l: 0, r: 0 } };
 
-Plotly.newPlot(temperatureGaugeDiv, temperatureData, layout);
-Plotly.newPlot(voltageGaugeDiv, voltageData, layout);
-Plotly.newPlot(batteryGaugeDiv, batteryData, layout);
+//Plotly.newPlot(temperatureGaugeDiv, temperatureData, layout);
+//Plotly.newPlot(voltageGaugeDiv, voltageData, layout);
+//Plotly.newPlot(batteryGaugeDiv, batteryData, layout);
 
 
 // Will hold the arrays we receive from our BME280 sensor
@@ -649,9 +649,9 @@ function updateGauge(temperature, voltage, battery) {
     value: battery,
   };
 
-  Plotly.update(temperatureGaugeDiv, temperature_update);
-  Plotly.update(voltageGaugeDiv, voltage_update);
-  Plotly.update(batteryGaugeDiv, battery_update);
+ // Plotly.update(temperatureGaugeDiv, temperature_update);
+ // Plotly.update(voltageGaugeDiv, voltage_update);
+ // Plotly.update(batteryGaugeDiv, battery_update);
   
 }
 
