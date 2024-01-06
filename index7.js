@@ -10,6 +10,7 @@ const themeToggler = document.querySelector(".theme-toggler");
 const idpot1 = document.getElementById("pot1");
 const idpot2 = document.getElementById("pot2");
 const idpot3 = document.getElementById("pot3");
+const idpot4 = document.getElementById("pot4");
 const TittlePage = document.getElementById("TittlePage");
 
 
@@ -53,16 +54,20 @@ document.cookie= "Has_Humidity = 0"
 location.reload()
 
 });
+document.getElementById("pot1-text").innerText = "Temperature balcon";
+
 
 idpot2.addEventListener("click", () => {
 document.cookie="SelectedDevice = Yaourt2"           // object
-document.cookie="TitleText = Sur le bar: Temperature et humidité" 
+document.cookie="TitleText = cuisine: Temperature et humidité" 
 document.cookie= "Name_OMG= OMG_ESP32_LORA2" 
 document.cookie= "Has_Battery = 0"
 document.cookie= "Has_Humidity = 1"
 location.reload()
-
 });
+document.getElementById("pot2-text").innerText = "Temp+Hydro cuisine";
+
+
 
 idpot3.addEventListener("click", () => {
 document.cookie="SelectedDevice = 288AD011000"           // object
@@ -73,6 +78,22 @@ document.cookie= "Has_Humidity = 0"
 location.reload()
 
 });
+document.getElementById("pot3-text").innerText = "Terre Jardin";
+
+
+
+idpot4.addEventListener("click", () => {
+document.cookie="SelectedDevice = 0x28cfda81e3d53c89"           // object
+document.cookie="TitleText = Temperature du Hall d'entrée" 
+document.cookie= "Name_OMG= OMG_ESP32_LORA" 
+document.cookie= "Has_Battery = 0"
+document.cookie= "Has_Humidity = 0"
+location.reload()
+
+});
+document.getElementById("pot4-text").innerText = "Temperature Hall";
+
+
 
 menuBtn.addEventListener("click", () => {
   sideMenu.style.display = "block";
@@ -225,7 +246,7 @@ var humidityLayout = {
     family: "poppins, san-serif",
   },
   colorway: ["#05AD86"],
-  margin: { t: 40, b: 120, l: 100, r: 30, pad: 0 },
+  margin: { t: 40, b: 120, l: 40, r: 10, pad: 0 },
   plot_bgcolor: chartBGColor,
   paper_bgcolor: chartBGColor,
   xaxis: {
