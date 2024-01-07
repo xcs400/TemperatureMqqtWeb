@@ -475,8 +475,9 @@ main .histories h2 {
   aside {
     position: fixed;
     left: -100%;
+    left: -100%;
     background: var(--color-white);
-    width: 18rem;
+    width: 28rem;
     z-index: 3;
     box-shadow: 1rem 3rem 4rem var(--color-light);
     height: 100vh;
@@ -538,7 +539,7 @@ main .histories h2 {
     left: 0;
     align-items: center;
     padding: 0 0.8rem;
-    height: 3.6rem;
+    height: 4.6rem;
     background: var(--color-white);
     width: 100%;
     margin: 0;
@@ -563,7 +564,7 @@ main .histories h2 {
     left: 1rem;
   }
   .right .top button span {
-    font-size: 2rem;
+    font-size: 3rem;
   }
 }
 
@@ -573,8 +574,11 @@ main .histories h2 {
     grid-template-columns: 1fr;
     margin: 1rem 0 1rem 0;
   }
+  
+  
+  
   main {
-    margin: 0rem 1rem 0rem 0rem;
+    margin: 4rem 1rem 0rem 0rem;
     padding: 0 1rem;
     width: 90vw;
   }
