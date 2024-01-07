@@ -7,21 +7,18 @@ const menuBtn = document.querySelector("#menu-btn");
 const closeBtn = document.querySelector("#close-btn");
 const themeToggler = document.querySelector(".theme-toggler");
 
-const idpot1 = document.getElementById("pot1");
-const idpot2 = document.getElementById("pot2");
-const idpot3 = document.getElementById("pot3");
-const idpot4 = document.getElementById("pot4");
+
 const TittlePage = document.getElementById("TittlePage");
 
 const OKmyPopupvalue = document.getElementById("OKmyPopupvalue");
 
-const myPopupvalue = document.getElementById("myPopupvalue");
+const popuptext = document.getElementsByClassName("popuptext");
 
-var SelectedDevice="?"
+var SelectedDevice = "?"
 
 
 
-let filtre=""
+let filtre = ""
 // Holds the background color of all chart
 var chartBGColor = getComputedStyle(document.body).getPropertyValue(
   "--chart-background"
@@ -38,49 +35,55 @@ var chartAxisColor = getComputedStyle(document.body).getPropertyValue(
 */
 
 function getCookie(cName) {
-      const name = cName + "=";
-      const cDecoded = decodeURIComponent(document.cookie); //to be careful
-      const cArr = cDecoded .split('; ');
-      let res;
-      cArr.forEach(val => {
-          if (val.indexOf(name) === 0) res = val.substring(name.length);
-      })
-      return res;
+  const name = cName + "=";
+  const cDecoded = decodeURIComponent(document.cookie); //to be careful
+  const cArr = cDecoded.split('; ');
+  let res;
+  cArr.forEach(val => {
+    if (val.indexOf(name) === 0) res = val.substring(name.length);
+  })
+  return res;
 }
 
 
 
+function addclicker()
+{
+const idpot1 = document.getElementById("pot1");
+const idpot2 = document.getElementById("pot2");
+const idpot3 = document.getElementById("pot3");
+const idpot4 = document.getElementById("pot4");
 
 idpot1.addEventListener("click", () => {
-document.cookie="SelectedDevice = Yaourt1"         // object
-document.cookie="TitleText = Temperature balcon sur batterie"  
-document.cookie= "Name_OMG= OMG_ESP32_LORA" 
-document.cookie= "Has_Battery= 1" 
-document.cookie= "Has_Humidity = 0"
-location.reload()
+  document.cookie = "SelectedDevice = Yaourt1"         // object
+  document.cookie = "TitleText = Temperature balcon sur batterie"
+  document.cookie = "Name_OMG= OMG_ESP32_LORA"
+  document.cookie = "Has_Battery= 1"
+  document.cookie = "Has_Humidity = 0"
+  location.reload()
 
 });
 document.getElementById("pot1-text").innerText = "Temperature balcon";
 
 idpot2.addEventListener("click", () => {
-document.cookie="SelectedDevice = Yaourt2"           // object
-document.cookie="TitleText = cuisine: Temperature et humidité" 
-document.cookie= "Name_OMG= OMG_ESP32_LORA2" 
-document.cookie= "Has_Battery = 0"
-document.cookie= "Has_Humidity = 1"
-location.reload()
+  document.cookie = "SelectedDevice = Yaourt2"           // object
+  document.cookie = "TitleText = cuisine: Temperature et humidité"
+  document.cookie = "Name_OMG= OMG_ESP32_LORA2"
+  document.cookie = "Has_Battery = 0"
+  document.cookie = "Has_Humidity = 1"
+  location.reload()
 });
 document.getElementById("pot2-text").innerText = "Temp+Hydro cuisine";
 
 
 
 idpot3.addEventListener("click", () => {
-document.cookie="SelectedDevice = 288AD011000"           // object
-document.cookie="TitleText = Dans la terre du jardin " 
-document.cookie= "Name_OMG= OMG_ESP32_LORA" 
-document.cookie= "Has_Battery = 0"
-document.cookie= "Has_Humidity = 0"
-location.reload()
+  document.cookie = "SelectedDevice = 288AD011000"           // object
+  document.cookie = "TitleText = Dans la terre du jardin "
+  document.cookie = "Name_OMG= OMG_ESP32_LORA"
+  document.cookie = "Has_Battery = 0"
+  document.cookie = "Has_Humidity = 0"
+  location.reload()
 
 });
 document.getElementById("pot3-text").innerText = "Terre Jardin";
@@ -88,31 +91,43 @@ document.getElementById("pot3-text").innerText = "Terre Jardin";
 
 
 idpot4.addEventListener("click", () => {
-document.cookie="SelectedDevice = 0x28cfda81e3d53c89"           // object
-document.cookie="TitleText = Temperature du Hall d'entrée" 
-document.cookie= "Name_OMG= OMG_ESP32_LORA" 
-document.cookie= "Has_Battery = 0"
-document.cookie= "Has_Humidity = 0"
-location.reload()
+  document.cookie = "SelectedDevice = 0x28cfda81e3d53c89"           // object
+  document.cookie = "TitleText = Temperature du Hall d'entrée"
+  document.cookie = "Name_OMG= OMG_ESP32_LORA"
+  document.cookie = "Has_Battery = 0"
+  document.cookie = "Has_Humidity = 0"
+  location.reload()
 
 });
+
 document.getElementById("pot4-text").innerText = "Temperature Hall";
 
+}
 
 
 OKmyPopupvalue.addEventListener("click", () => {
-	
-	
- var popuptext= document.getElementsByClassName('popuptext');
 
- 
-//for (var i = 0; i < popuptext.length; i ++) {
- //   popuptext[i].style.visibility = 'hidden';
-//}
+  var topic = "home/" + getCookie("Name_OMG") + "/MERGEtoMQTT/Sensor/" + getCookie("SelectedDevice") + "/Settings"
+  var textit = '{'
+  var myPopupElement = document.getElementById('myPopup');
+  var inputElements = myPopupElement.querySelectorAll('input');
+  var textit = '';
 
+  for (var i = 0; i < inputElements.length; i++) {
+    // Ajoutez une clause if pour la première itération
+    if (i === 0) {
+
+      TittlePage.innerHTML = inputElements[i].value;
+    }
+
+    textit = textit + inputElements[i].id + ':"' + inputElements[i].value + '",';
+  }
+
+  textit = textit + '}'
+  mqttService.publish(topic, textit)
 
 });
-  
+
 menuBtn.addEventListener("click", () => {
   sideMenu.style.display = "block";
 });
@@ -123,26 +138,26 @@ closeBtn.addEventListener("click", () => {
 
 
 themeToggler.addEventListener("click", () => {
-	
-	var popup = document.getElementById('myPopup');
-    popup.classList.toggle('show');
-	
- /* document.body.classList.toggle("dark-theme-variables");
-  themeToggler.querySelector("span:nth-child(1)").classList.toggle("active");
-  themeToggler.querySelector("span:nth-child(2)").classList.toggle("active");
 
-  // Update Chart background
-  chartBGColor = getComputedStyle(document.body).getPropertyValue(
-    "--chart-background"
-  );
-  chartFontColor = getComputedStyle(document.body).getPropertyValue(
-    "--chart-font-color"
-  );
-  chartAxisColor = getComputedStyle(document.body).getPropertyValue(
-    "--chart-axis-color"
-  );
-  updateChartsBackground();
-  */
+  var popup = document.getElementById('myPopup');
+  popup.classList.toggle('show');
+
+  /* document.body.classList.toggle("dark-theme-variables");
+   themeToggler.querySelector("span:nth-child(1)").classList.toggle("active");
+   themeToggler.querySelector("span:nth-child(2)").classList.toggle("active");
+ 
+   // Update Chart background
+   chartBGColor = getComputedStyle(document.body).getPropertyValue(
+     "--chart-background"
+   );
+   chartFontColor = getComputedStyle(document.body).getPropertyValue(
+     "--chart-font-color"
+   );
+   chartAxisColor = getComputedStyle(document.body).getPropertyValue(
+     "--chart-axis-color"
+   );
+   updateChartsBackground();
+   */
 });
 
 /*
@@ -166,9 +181,9 @@ const historyCharts = [
 ];
 
 const gaugeCharts = [
- // temperatureGaugeDiv,
- // voltageGaugeDiv,
- // batteryGaugeDiv,
+  // temperatureGaugeDiv,
+  // voltageGaugeDiv,
+  // batteryGaugeDiv,
 
 ];
 
@@ -177,9 +192,9 @@ var temperatureTrace = {
   x: [1],
   y: [10],
 
-error_y : {   color: 'f44', symmetric: false, array:[10], arrayminus :[5], type:'data', visible:true} ,
+  error_y: { color: 'f44', symmetric: false, array: [10], arrayminus: [5], type: 'data', visible: true },
 
-	  
+
   name: "Temperature",
   mode: "lines+markers",
   type: "scatter",
@@ -189,12 +204,12 @@ var voltageTrace = {
   y: [],
   name: "voltage",
   mode: "lines",
-  
-  
- //     line: {shape: 'spline'},
+
+
+  //     line: {shape: 'spline'},
   type: 'line'
-   ,
-   
+  ,
+
 };
 var humidityTrace = {
   x: [],
@@ -205,7 +220,7 @@ var humidityTrace = {
 };
 
 var temperatureLayout = {
- // autosize: true,
+  // autosize: true,
 
   title: {
     text: "Temperature",
@@ -233,7 +248,7 @@ var temperatureLayout = {
     autorange: true,
   },
 
-   
+
 };
 var voltageLayout = {
   autosize: true,
@@ -274,7 +289,7 @@ var humidityLayout = {
   plot_bgcolor: chartBGColor,
   paper_bgcolor: chartBGColor,
   xaxis: {
-	  
+
     color: chartAxisColor,
     linecolor: chartAxisColor,
     gridwidth: "2",
@@ -286,110 +301,145 @@ var humidityLayout = {
 };
 
 
+function createPotLink(id, text) {
+  const potLink = document.createElement("a");
+  potLink.href = "#";
+  potLink.classList.add("active");
+  potLink.id = id;
+
+  const spanIcon = document.createElement("span");
+  spanIcon.classList.add("material-symbols-sharp");
+  spanIcon.textContent = " dashboard ";
+
+  const h2Text = document.createElement("h2");
+  h2Text.id = `${id}-text`;
+  h2Text.textContent = text;
+
+  potLink.appendChild(spanIcon);
+  potLink.appendChild(h2Text);
+
+  return potLink;
+}
 
 
-var config = { responsive: true, displayModeBar: false , type: "scatter", };
+
+
+var config = { responsive: true, displayModeBar: false, type: "scatter", };
 
 // Event listener when page is loaded
 window.addEventListener("load", (event) => {
-  Plotly.newPlot( temperatureHistoryDiv,[temperatureTrace],    temperatureLayout,  config  );
+  Plotly.newPlot(temperatureHistoryDiv, [temperatureTrace], temperatureLayout, config);
   Plotly.newPlot(voltageHistoryDiv, [voltageTrace], voltageLayout, config);
   Plotly.newPlot(humidityHistoryDiv, [humidityTrace], humidityLayout, config);
-  
 
- var SelectedDevice= getCookie("SelectedDevice" )
- 
- if (SelectedDevice==undefined)
-	 {
-	document.cookie="SelectedDevice = Yaourt1"         // object
-	document.cookie= "Name_OMG= OMG_ESP32_LORA" 
-	document.cookie="TitleText = Temperature exterieure sur batterie"  
-	document.cookie= "Has_Battery= 1" 
-	document.cookie= "Has_Humidity= 1" 
-	
-	myPopupvalue.value= getCookie("TitleText" ) 
+// Usage example
+const sidebar = document.querySelector(".sidebar");
 
+const pot1Link = createPotLink("pot1", "Pot de Yaourt 1");
+const pot2Link = createPotLink("pot2", "Pot de Yaourt 2");
+const pot3Link = createPotLink("pot3", "Pot de Yaourt 3");
+const pot4Link = createPotLink("pot4", "Pot de Yaourt 4");
+const potRienLink = createPotLink("potrien", "");
 
-	}
- 
- else
- { 
-   var Name_OMG= getCookie("Name_OMG" )
- 
-  var Has_Battery= getCookie("Has_Battery" )
-  if (Has_Battery==1)
-       var val=  "block";
-	else
-       var val=  "none";
-		
-		myPopupvalue.value= getCookie("TitleText" ) 
+sidebar.appendChild(pot1Link);
+sidebar.appendChild(pot2Link);
+sidebar.appendChild(pot3Link);
+sidebar.appendChild(pot4Link);
+sidebar.appendChild(potRienLink);
 
-
-  
-	const voltage = document.getElementsByClassName("voltage");
- 	for (var i=0; i<voltage.length; i++) {
-		voltage[i].style.display = val
-		}
-	
-	const voltagehistory = document.getElementById("voltage-history");
-	voltagehistory.style.display = val
-		
+addclicker()
 
 
 
-  var Has_Humidity= getCookie("Has_Humidity" )
-  if (Has_Humidity==1)
-       var val=  "block";
-	else
-       var val=  "none";
-		
-	  
-	const humidity = document.getElementsByClassName("humidity");
- 	for (var i=0; i<humidity.length; i++) {
-		humidity[i].style.display = val
-		}
-	
-	const humidityhistory = document.getElementById("humidity-history");
-			humidityhistory.style.display = val
-	
-	
+  var SelectedDevice = getCookie("SelectedDevice")
+
+  if (SelectedDevice == undefined) {
+    document.cookie = "SelectedDevice = Yaourt1"         // object
+    document.cookie = "Name_OMG= OMG_ESP32_LORA"
+    document.cookie = "TitleText = Temperature exterieure sur batterie"
+    document.cookie = "Has_Battery= 1"
+    document.cookie = "Has_Humidity= 1"
+
+    document.getElementById("Libelle").value = getCookie("TitleText")
   }
- 
- 
+
+  else {
+    var Name_OMG = getCookie("Name_OMG")
+
+    var Has_Battery = getCookie("Has_Battery")
+    if (Has_Battery == 1)
+      var val = "block";
+    else
+      var val = "none";
+
+    document.getElementById("Libelle").value = getCookie("TitleText")
+
+
+
+    const voltage = document.getElementsByClassName("voltage");
+    for (var i = 0; i < voltage.length; i++) {
+      voltage[i].style.display = val
+    }
+
+    const voltagehistory = document.getElementById("voltage-history");
+    voltagehistory.style.display = val
+
+
+
+
+    var Has_Humidity = getCookie("Has_Humidity")
+    if (Has_Humidity == 1)
+      var val = "block";
+    else
+      var val = "none";
+
+
+    const humidity = document.getElementsByClassName("humidity");
+    for (var i = 0; i < humidity.length; i++) {
+      humidity[i].style.display = val
+    }
+
+    const humidityhistory = document.getElementById("humidity-history");
+    humidityhistory.style.display = val
+
+
+  }
+
+
   // Get MQTT Connection
   fetchMQTTConnection();
 
   // Run it initially
-  
 
-  
+
+
   var oDiv = document.getElementsByClassName('shiftdateelement');
 
-oDiv[0].addEventListener('click',function (e) {
-   changefiltre(-1)
- // alert('left');
-  e.stopPropagation();
-},true);
-oDiv[1].addEventListener('click',function (e) {
-  changefiltre(1)
- // alert('right');
-  e.stopPropagation();
-},true);
+  oDiv[0].addEventListener('click', function (e) {
+    changefiltre(-1)
+    // alert('left');
+    e.stopPropagation();
+  }, true);
+  oDiv[1].addEventListener('click', function (e) {
+    changefiltre(1)
+    // alert('right');
+    e.stopPropagation();
+  }, true);
 
 
-  document.body.onclick= function(e){
-   e=window.event? event.srcElement: e.target;
-   if(e.className && e.className.indexOf('shiftdateelement')!=-1)alert('hohoho');
-}
+  document.body.onclick = function (e) {
+    e = window.event ? event.srcElement : e.target;
+    if (e.className && e.className.indexOf('shiftdateelement') != -1) alert('hohoho');
+  }
 
-  
+
   handleDeviceChange(mediaQuery);
 });
 
 // Gauge Data
 var temperatureData = [
   {
-	  
+
     domain: { x: [0, 1], y: [0, 1] },
     value: 0,
     title: { text: "Temperature" },
@@ -399,10 +449,10 @@ var temperatureData = [
     gauge: {
       axis: { range: [-20, 60] },
       steps: [
-	     { range: [-20, 0], color: "red" },
+        { range: [-20, 0], color: "red" },
         { range: [0, 18], color: "lightgray" },
         { range: [18, 22], color: "gray" },
-		{ range: [22, 60], color: "lightgray" },
+        { range: [22, 60], color: "lightgray" },
       ],
       threshold: {
         line: { color: "red", width: 4 },
@@ -426,7 +476,7 @@ var voltageData = [
       steps: [
         { range: [0, 3200], color: "red" },
         { range: [3200, 4050], color: "grey" },
-	 { range: [4050, 5000], color: "red" },
+        { range: [4050, 5000], color: "red" },
       ],
       threshold: {
         line: { color: "red", width: 4 },
@@ -449,8 +499,8 @@ var batteryData = [
       axis: { range: [null, 100] },
       steps: [
         { range: [0, 10], color: "red" },
-		{ range: [10, 40], color: "orange" },
-		{ range: [40, 60], color: "yellow" },
+        { range: [10, 40], color: "orange" },
+        { range: [40, 60], color: "yellow" },
         { range: [60, 100], color: "blue" },
       ],
       threshold: {
@@ -487,184 +537,181 @@ let newbatteryYArray = [];
 let MAX_GRAPH_POINTS = 220;
 let ctr = 0;
 
-  
 
-  
-  
+
+
+
 // Callback function that will retrieve our latest sensor readings and redraw our Gauge with the latest readings
 function since() {
 
-var today = new Date();
-var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+  var today = new Date();
+  var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
 
-var date1 = new Date("2013/04/09 " +time)
-var date2 = new Date("2013/04/09 " + mqttupdated.textContent);
+  var date1 = new Date("2013/04/09 " + time)
+  var date2 = new Date("2013/04/09 " + mqttupdated.textContent);
 
-var tmp = (date1 - date2 )/1000
-if (tmp > 3600)
-	tmp=tmp-3600
-console.log( mqttupdated.textContent,time  , tmp )
-	mqttupdatedsec.textContent=tmp
-  setTimeout(since, 1000); 
-  	
+  var tmp = (date1 - date2) / 1000
+  if (tmp > 3600)
+    tmp = tmp - 3600
+  console.log(mqttupdated.textContent, time, tmp)
+  mqttupdatedsec.textContent = tmp
+  setTimeout(since, 1000);
+
 }
 
 function updateSensorReadings(jsonResponse) {
   console.log(typeof jsonResponse);
   console.log(jsonResponse);
- 
-if (jsonResponse.TempCelsius !== undefined  )     // cas dernier message update gauge
-  { 
-   var TitleText= getCookie("TitleText" )
-  TittlePage.innerHTML = TitleText + " (" + jsonResponse.name+")";
-  mqttupdated.textContent =jsonResponse.Time.split('/')[1].replaceAll('-',':') 
-  
-  setTimeout(since, 1000); 
-  
-  
-  let temperature = Number(jsonResponse.TempCelsius).toFixed(2);
-  let voltage = Number(jsonResponse.Vbatt).toFixed(2);
-   //var val = Object.values(jsonResponse);
-   //let battery = Number(val[5] ).toFixed(2);
-  let battery = Number(jsonResponse.Charge).toFixed(2);
- 
-  updateBoxes(temperature, voltage, battery,voltage); //use volatge comm humidi
-  updateGauge(temperature, voltage, battery, voltage);
-  }
-  
-  if (jsonResponse.Date !== undefined  )     // cas dernier message update chart
-  { 
-  var u=jsonResponse.Temp
-  var TZ= u.split(',')
-  
-  var T2=TZ[TZ.length-1];
-  var T1=TZ[TZ.length-2];
-    
-  if (T2 >T1)
-  {var divsToShow = document.getElementsByClassName('tendenceup');
-   var divsToHide = document.getElementsByClassName('tendencedown');
-  }
-  else
-  {  var divsToHide = document.getElementsByClassName('tendenceup');
-     var divsToShow = document.getElementsByClassName('tendencedown');
-  }
-  if (T2 ==T1) 
-  { // var divsToShow = document.getElementsByClassName('tendenceup');
-    //  var divsToShow= document.getElementsByClassName('tendencedown') ;
-  }
-  
-  
-   for(var i = 0; i < divsToHide.length; i++){
-        divsToHide[i].style.visibility = "hidden"; 
-    //    divsToHide[i].style.display = "none"; 
-    }
-	 for(var i = 0; i < divsToShow.length; i++){
-        divsToHide[i].style.visibility = "show"; 
-     //   divsToHide[i].style.display = "block"; 
-    }
-	
- 
- 
-  updateMiniMaxi(jsonResponse.Jour_tmin,jsonResponse.Jour_tmax)
-  
-   burstupdateCharts( jsonResponse.Date, jsonResponse.Temp , jsonResponse.tmin, jsonResponse.tmax, temperatureHistoryDiv);
-   burstupdateCharts( jsonResponse.Date, jsonResponse.Vbatt , undefined, undefined,  voltageHistoryDiv);
-   burstupdateCharts( jsonResponse.Date, jsonResponse.Vbatt ,undefined, undefined ,humidityHistoryDiv);
-       
-   // xArray.push(ctr++);
 
- // var t1= time.split("/")   //12-11-2023/21-34-06
- // var t2=t1[1].split("-")
-  
-  // xArray.push(t2[0]+":"+t2[1] ); 
-  
+  if (jsonResponse.TempCelsius !== undefined)     // cas dernier message update gauge
+  {
+    var TitleText = getCookie("TitleText")
+    TittlePage.innerHTML = TitleText + " (" + jsonResponse.name + ")";
+    mqttupdated.textContent = jsonResponse.Time.split('/')[1].replaceAll('-', ':')
+
+    setTimeout(since, 1000);
+
+
+    let temperature = Number(jsonResponse.TempCelsius).toFixed(2);
+    let voltage = Number(jsonResponse.Vbatt).toFixed(2);
+    //var val = Object.values(jsonResponse);
+    //let battery = Number(val[5] ).toFixed(2);
+    let battery = Number(jsonResponse.Charge).toFixed(2);
+
+    updateBoxes(temperature, voltage, battery, voltage); //use volatge comm humidi
+    updateGauge(temperature, voltage, battery, voltage);
+  }
+
+  if (jsonResponse.Date !== undefined)     // cas dernier message update chart
+  {
+    var u = jsonResponse.Temp
+    var TZ = u.split(',')
+
+    var T2 = TZ[TZ.length - 1];
+    var T1 = TZ[TZ.length - 2];
+
+    if (T2 > T1) {
+      var divsToShow = document.getElementsByClassName('tendenceup');
+      var divsToHide = document.getElementsByClassName('tendencedown');
+    }
+    else {
+      var divsToHide = document.getElementsByClassName('tendenceup');
+      var divsToShow = document.getElementsByClassName('tendencedown');
+    }
+    if (T2 == T1) { // var divsToShow = document.getElementsByClassName('tendenceup');
+      //  var divsToShow= document.getElementsByClassName('tendencedown') ;
+    }
+
+
+    for (var i = 0; i < divsToHide.length; i++) {
+      divsToHide[i].style.visibility = "hidden";
+      //    divsToHide[i].style.display = "none"; 
+    }
+    for (var i = 0; i < divsToShow.length; i++) {
+      divsToHide[i].style.visibility = "show";
+      //   divsToHide[i].style.display = "block"; 
+    }
+
+
+
+    updateMiniMaxi(jsonResponse.Jour_tmin, jsonResponse.Jour_tmax)
+
+    burstupdateCharts(jsonResponse.Date, jsonResponse.Temp, jsonResponse.tmin, jsonResponse.tmax, temperatureHistoryDiv);
+    burstupdateCharts(jsonResponse.Date, jsonResponse.Vbatt, undefined, undefined, voltageHistoryDiv);
+    burstupdateCharts(jsonResponse.Date, jsonResponse.Vbatt, undefined, undefined, humidityHistoryDiv);
+
+    // xArray.push(ctr++);
+
+    // var t1= time.split("/")   //12-11-2023/21-34-06
+    // var t2=t1[1].split("-")
+
+    // xArray.push(t2[0]+":"+t2[1] ); 
+
 
   }
- 
+
 }
- 
-  
-function burstupdateCharts( jdate, jvalue , jtmin , jtmax,grapf) {
-
-if (jvalue== undefined )
-	return
-	
-   var arDate = jdate.replace("[","") 
- //  arDate = arDate.replace("]","") 
-//   arDate = arDate.replaceAll("-23","")
- //  arDate = arDate.replaceAll("'","") 
-
-	var arDate=arDate.split(',') 
 
 
+function burstupdateCharts(jdate, jvalue, jtmin, jtmax, grapf) {
 
-   var artemp = jvalue.replace("[","") 
-   artemp = artemp.replace("]","") 
-   var artemperature=artemp.split(',') 
-	
+  if (jvalue == undefined)
+    return
 
-   var xArray=[]
-   xArray.push (arDate)
-   var yArray=[]
-   yArray.push(artemperature);
-   
-   
-     var error_y=[]
-     var error_y_minus=[]
-	 
- if (jtmin !== undefined )
- {
-	   error_y=  jtmax.split(',') 
-	    error_y_minus=  jtmin.split(',') 
- 
- for (let u in error_y)
-	 {
-	 error_y[u]=error_y[u]- artemperature[u]
-	 error_y_minus[u]= artemperature[u]-error_y_minus[u]
-		 
-	 }
- }
+  var arDate = jdate.replace("[", "")
+  //  arDate = arDate.replace("]","") 
+  //   arDate = arDate.replaceAll("-23","")
+  //  arDate = arDate.replaceAll("'","") 
 
-	 
+  var arDate = arDate.split(',')
 
- 
+
+
+  var artemp = jvalue.replace("[", "")
+  artemp = artemp.replace("]", "")
+  var artemperature = artemp.split(',')
+
+
+  var xArray = []
+  xArray.push(arDate)
+  var yArray = []
+  yArray.push(artemperature);
+
+
+  var error_y = []
+  var error_y_minus = []
+
+  if (jtmin !== undefined) {
+    error_y = jtmax.split(',')
+    error_y_minus = jtmin.split(',')
+
+    for (let u in error_y) {
+      error_y[u] = error_y[u] - artemperature[u]
+      error_y_minus[u] = artemperature[u] - error_y_minus[u]
+
+    }
+  }
+
+
+
+
   var data_update = {
-   x: xArray,
+    x: xArray,
     y: yArray,
-	error_y : {color:"F55", symmetric: false, array:error_y,  arrayminus :error_y_minus, type:'data', visible:true} ,
+    error_y: { color: "F55", symmetric: false, array: error_y, arrayminus: error_y_minus, type: 'data', visible: true },
 
 
-	
+
   };
-  
-   Plotly.update(grapf, data_update);
-  
+
+  Plotly.update(grapf, data_update);
+
 }
 
 
-  // Update Temperature Line Chart
- /* updateCharts(
-    temperatureHistoryDiv,
-    newTempXArray,
-    newTempYArray,
-    temperature,  jsonResponse.Time
-  );
-  */
-  /*
-  // Update voltage Line Chart
-  updateCharts(
-    voltageHistoryDiv,
-    newvoltageXArray,
-    newvoltageYArray,
-    voltage , jsonResponse.Time
-  );
-  // Update battery Line Chart
-  updateCharts(
-    batteryHistoryDiv,
-    newbatteryXArray,
-    newbatteryYArray,
-    battery ,jsonResponse.Time
-  );
+// Update Temperature Line Chart
+/* updateCharts(
+   temperatureHistoryDiv,
+   newTempXArray,
+   newTempYArray,
+   temperature,  jsonResponse.Time
+ );
+ */
+/*
+// Update voltage Line Chart
+updateCharts(
+  voltageHistoryDiv,
+  newvoltageXArray,
+  newvoltageYArray,
+  voltage , jsonResponse.Time
+);
+// Update battery Line Chart
+updateCharts(
+  batteryHistoryDiv,
+  newbatteryXArray,
+  newbatteryYArray,
+  battery ,jsonResponse.Time
+);
 */
 
 
@@ -680,7 +727,7 @@ function updateMiniMaxi(mini, maxi) {
 }
 
 
-function updateBoxes(temperature, voltage, battery ,humidity) {
+function updateBoxes(temperature, voltage, battery, humidity) {
   let temperatureDiv = document.getElementById("temperature");
   let voltageDiv = document.getElementById("voltage");
   let batteryDiv = document.getElementById("battery");
@@ -704,28 +751,28 @@ function updateGauge(temperature, voltage, battery) {
     value: battery,
   };
 
- // Plotly.update(temperatureGaugeDiv, temperature_update);
- // Plotly.update(voltageGaugeDiv, voltage_update);
- // Plotly.update(batteryGaugeDiv, battery_update);
-  
+  // Plotly.update(temperatureGaugeDiv, temperature_update);
+  // Plotly.update(voltageGaugeDiv, voltage_update);
+  // Plotly.update(batteryGaugeDiv, battery_update);
+
 }
 
-function updateCharts(lineChartDiv, xArray, yArray, sensorRead ,time) {
+function updateCharts(lineChartDiv, xArray, yArray, sensorRead, time) {
   if (xArray.length >= MAX_GRAPH_POINTS) {
     xArray.shift();
   }
   if (yArray.length >= MAX_GRAPH_POINTS) {
     yArray.shift();
   }
- // xArray.push(ctr++);
-  var t1= time.split("/")   //12-11-2023/21-34-06
-  var t2=t1[1].split("-")
-  
-   xArray.push(t2[0]+":"+t2[1] ); 
+  // xArray.push(ctr++);
+  var t1 = time.split("/")   //12-11-2023/21-34-06
+  var t2 = t1[1].split("-")
+
+  xArray.push(t2[0] + ":" + t2[1]);
   yArray.push(sensorRead);
 
   var data_update = {
-	
+
     x: [xArray],
     y: [yArray],
   };
@@ -805,8 +852,8 @@ const mqttStatus = document.querySelector(".status");
 const mqttupdated = document.querySelector(".updated");
 const mqttupdatedsec = document.querySelector(".updatedsec");
 
-  var mqttService 
-  
+var mqttService
+
 function onConnect(message) {
   mqttStatus.textContent = "Connected to broker";
 }
@@ -814,15 +861,15 @@ function onMessage(topic, message) {
   var stringResponse = message.toString();
   console.log(message)
   var messageResponse = JSON.parse(stringResponse);
-  
-  if (messageResponse.hex == undefined  &&  messageResponse.name !== undefined   )
-	updateSensorReadings(messageResponse);
-  else 
-  {console.log("skip:"+topic)
-  
+
+  if (messageResponse.hex == undefined && messageResponse.name !== undefined)
+    updateSensorReadings(messageResponse);
+  else {
+    console.log("skip:" + topic)
+
   }
   //b=0
- // mqttService.publish(topic,b)
+  // mqttService.publish(topic,b)
 }
 
 function onError(error) {
@@ -848,29 +895,29 @@ function fetchMQTTConnection() {
     },
   })
     .then(function (response) {
-		console.log("reponse  :", response)
-		
- var SelectedDevice= getCookie("SelectedDevice" )
- var Name_OMG= getCookie("Name_OMG" )
- var Has_Battery= getCookie("Has_Battery" )
- 
- 
-	 initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/"+Name_OMG +"/MERGEtoMQTT/"+ SelectedDevice +"/LastMessage/#");
-	 
-	 var ladate=new Date()
-	 var chd=ladate.getFullYear()+ "-"  + padWithLeadingZeros((ladate.getMonth()+1),2)  +  "-" +  padWithLeadingZeros((ladate.getDate()),2)
-	 
- 	 initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/"+ Name_OMG+ "/MERGEtoMQTT/"+SelectedDevice+ "/Histo/"+chd+"/#");
-      
-  	 let idategraph = document.getElementById('dategraph');
-	 var ifiltre= idategraph.innerHTML=chd
-  
-   
-  
-	 return response.json();
-	  
+      console.log("reponse  :", response)
+
+      var SelectedDevice = getCookie("SelectedDevice")
+      var Name_OMG = getCookie("Name_OMG")
+      var Has_Battery = getCookie("Has_Battery")
+
+
+      initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/" + Name_OMG + "/MERGEtoMQTT/" + SelectedDevice + "/LastMessage/#");
+
+      var ladate = new Date()
+      var chd = ladate.getFullYear() + "-" + padWithLeadingZeros((ladate.getMonth() + 1), 2) + "-" + padWithLeadingZeros((ladate.getDate()), 2)
+
+      initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/" + Name_OMG + "/MERGEtoMQTT/" + SelectedDevice + "/Histo/" + chd + "/#");
+
+      let idategraph = document.getElementById('dategraph');
+      var ifiltre = idategraph.innerHTML = chd
+
+
+
+      return response.json();
+
     })
-   
+
 }
 function initializeMQTTConnection(mqttServer, mqttTopic) {
   console.log(
@@ -886,58 +933,57 @@ function initializeMQTTConnection(mqttServer, mqttTopic) {
 
 
 // On ajoute au prototype de l'objet Date une méthode personnalisée
-Date.prototype.addDays = function(days) {
-// On récupère le jour du mois auquel on ajoute le nombre de jour passé en paramètre
-var day = this.getDate()+days;
-// On définit le jour du mois (This représente la date sur laquelle on effectue l'opération)
-this.setDate(day);
+Date.prototype.addDays = function (days) {
+  // On récupère le jour du mois auquel on ajoute le nombre de jour passé en paramètre
+  var day = this.getDate() + days;
+  // On définit le jour du mois (This représente la date sur laquelle on effectue l'opération)
+  this.setDate(day);
 }
 
 
 
- function changefiltre(dir)
- {
-	 
-	 let idategraph = document.getElementById('dategraph');
-	 var ifiltre= idategraph.innerHTML
-  
-  
-  
-	 var myDate = new Date( ifiltre );
-// On additionne le nombre de jour voulu (ex: 2 jours)
+function changefiltre(dir) {
+
+  let idategraph = document.getElementById('dategraph');
+  var ifiltre = idategraph.innerHTML
 
 
 
-if (dir ==-1)	
-	{myDate.addDays(-1);	
-	
-	}
+  var myDate = new Date(ifiltre);
+  // On additionne le nombre de jour voulu (ex: 2 jours)
 
-if (dir ==1)
-	{myDate.addDays(1);	
-	
-	}
- 
+
+
+  if (dir == -1) {
+    myDate.addDays(-1);
+
+  }
+
+  if (dir == 1) {
+    myDate.addDays(1);
+
+  }
+
 
   var data_update = {
-   x: [0],
+    x: [0],
     y: [0]
-		
+
   };
-  
-   Plotly.update(temperatureHistoryDiv, data_update);
-   
-   
 
- var filtre=myDate.getFullYear()+ "-"  + padWithLeadingZeros((myDate.getMonth()+1),2)  +  "-" +  padWithLeadingZeros((myDate.getDate()),2)
+  Plotly.update(temperatureHistoryDiv, data_update);
 
-var SelectedDevice= getCookie("SelectedDevice" )
- var Name_OMG= getCookie("Name_OMG" )
- 
- 
- initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/"+Name_OMG+"/MERGEtoMQTT/"+SelectedDevice+"/Histo/"+filtre+"/#");
- 
- 	  idategraph.innerHTML=filtre
-  
-  
- }
+
+
+  var filtre = myDate.getFullYear() + "-" + padWithLeadingZeros((myDate.getMonth() + 1), 2) + "-" + padWithLeadingZeros((myDate.getDate()), 2)
+
+  var SelectedDevice = getCookie("SelectedDevice")
+  var Name_OMG = getCookie("Name_OMG")
+
+
+  initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/" + Name_OMG + "/MERGEtoMQTT/" + SelectedDevice + "/Histo/" + filtre + "/#");
+
+  idategraph.innerHTML = filtre
+
+
+}

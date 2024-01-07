@@ -354,21 +354,23 @@ main .histories h2 {
 
 
 .popup {
-   
-	
+    position: relative;
+	   width: 350px;
+    background-color: #e12e2e;
+    color: #fff;
+	 border-radius: 6px;
 }
+
 .popup .popuptext {
     visibility: hidden;
 	display:  none;
-    width: 160px;
-    background-color: #b1b1b1;
-    color: #fff;
+ 
     text-align: center;
     border-radius: 6px;
-    padding: 20px;
+    padding: 15px;
     position:relative;
-    top:15px;
-    right:1px;
+    top:5px;
+    left:5px;
 	
 }
 .popup .show {
@@ -377,6 +379,9 @@ main .histories h2 {
     -webkit-animation: fadeIn 1s;
     animation: fadeIn 1s;
 	 
+}
+.popup .popuptext input {
+    margin-bottom: 5px; /* Ajout d'une marge entre les champs de saisie */
 }
 
 
