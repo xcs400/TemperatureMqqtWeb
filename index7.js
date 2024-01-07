@@ -13,6 +13,9 @@ const idpot3 = document.getElementById("pot3");
 const idpot4 = document.getElementById("pot4");
 const TittlePage = document.getElementById("TittlePage");
 
+const OKmyPopupvalue = document.getElementById("OKmyPopupvalue");
+
+const myPopupvalue = document.getElementById("myPopupvalue");
 
 var SelectedDevice="?"
 
@@ -45,6 +48,9 @@ function getCookie(cName) {
       return res;
 }
 
+
+
+
 idpot1.addEventListener("click", () => {
 document.cookie="SelectedDevice = Yaourt1"         // object
 document.cookie="TitleText = Temperature balcon sur batterie"  
@@ -55,7 +61,6 @@ location.reload()
 
 });
 document.getElementById("pot1-text").innerText = "Temperature balcon";
-
 
 idpot2.addEventListener("click", () => {
 document.cookie="SelectedDevice = Yaourt2"           // object
@@ -95,6 +100,19 @@ document.getElementById("pot4-text").innerText = "Temperature Hall";
 
 
 
+OKmyPopupvalue.addEventListener("click", () => {
+	
+	
+ var popuptext= document.getElementsByClassName('popuptext');
+
+ 
+//for (var i = 0; i < popuptext.length; i ++) {
+ //   popuptext[i].style.visibility = 'hidden';
+//}
+
+
+});
+  
 menuBtn.addEventListener("click", () => {
   sideMenu.style.display = "block";
 });
@@ -103,8 +121,13 @@ closeBtn.addEventListener("click", () => {
   sideMenu.style.display = "none";
 });
 
+
 themeToggler.addEventListener("click", () => {
-  document.body.classList.toggle("dark-theme-variables");
+	
+	var popup = document.getElementById('myPopup');
+    popup.classList.toggle('show');
+	
+ /* document.body.classList.toggle("dark-theme-variables");
   themeToggler.querySelector("span:nth-child(1)").classList.toggle("active");
   themeToggler.querySelector("span:nth-child(2)").classList.toggle("active");
 
@@ -119,6 +142,7 @@ themeToggler.addEventListener("click", () => {
     "--chart-axis-color"
   );
   updateChartsBackground();
+  */
 });
 
 /*
@@ -282,6 +306,10 @@ window.addEventListener("load", (event) => {
 	document.cookie="TitleText = Temperature exterieure sur batterie"  
 	document.cookie= "Has_Battery= 1" 
 	document.cookie= "Has_Humidity= 1" 
+	
+	myPopupvalue.value= getCookie("TitleText" ) 
+
+
 	}
  
  else
@@ -294,6 +322,9 @@ window.addEventListener("load", (event) => {
 	else
        var val=  "none";
 		
+		myPopupvalue.value= getCookie("TitleText" ) 
+
+
   
 	const voltage = document.getElementsByClassName("voltage");
  	for (var i=0; i<voltage.length; i++) {
@@ -330,7 +361,7 @@ window.addEventListener("load", (event) => {
 
   // Run it initially
   
-  
+
   
   var oDiv = document.getElementsByClassName('shiftdateelement');
 
@@ -456,7 +487,10 @@ let newbatteryYArray = [];
 let MAX_GRAPH_POINTS = 220;
 let ctr = 0;
 
+  
 
+  
+  
 // Callback function that will retrieve our latest sensor readings and redraw our Gauge with the latest readings
 function since() {
 

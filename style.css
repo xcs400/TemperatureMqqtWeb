@@ -133,6 +133,10 @@ b {
   color: var(--color-warning);
 }
 
+.temperature {
+  width: 30vh;
+}
+
 /***** Sidebar Image*****/
 aside {
   height: 100vh;
@@ -347,6 +351,34 @@ main .histories h2 {
 .right .top button {
   display: none;
 }
+
+
+.popup {
+   
+	
+}
+.popup .popuptext {
+    visibility: hidden;
+	display:  none;
+    width: 160px;
+    background-color: #b1b1b1;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 20px;
+    position:relative;
+    top:15px;
+    right:1px;
+	
+}
+.popup .show {
+    visibility: visible;
+	display:  inline;
+    -webkit-animation: fadeIn 1s;
+    animation: fadeIn 1s;
+	 
+}
+
 
 .right .theme-toggler {
   background: var(--color-light);
@@ -580,7 +612,7 @@ main .histories h2 {
   main {
     margin: 4rem 1rem 0rem 0rem;
     padding: 0 1rem;
-    width: 90vw;
+    width: 99vw;
   }
 
   main .insights {

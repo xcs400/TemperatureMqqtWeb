@@ -48,11 +48,25 @@
             <span class="material-symbols-sharp"> dashboard </span>
              <h2 id="pot4-text"> Pot de Yaourt 4 </h2>
           </a>
+		   <a href="#"  id="potrien">
+          </a>
+		  
+		  
         </div>
       </aside>
       <main>
+
+   
         <h1><div id="TittlePage">Pot de Yaourt x</div></h1>
-        <div class="connection-status">
+	<div class="popup">
+      <h2> 
+	  <span class="popuptext" id="myPopup">Libellé:<input  id="myPopupvalue" size="30" type="text" /> 
+	  <a href="#" id="OKmyPopupvalue"  > ok</a> </span>
+	  </h2> 
+		  
+     </div>
+
+       <div class="connection-status">
          <div> <h3>Connection Status: <span class="status">Disconnected</span></h3> <h3>mise à jour: <span class="updated">?</span></h3> </div> 
 		  <h2>il y à : <span class="updatedsec">?</span> sec<h2>
 
@@ -143,18 +157,32 @@
 		
       </main>
       <div class="right">
-        <div class="top">
+          <div class="top">
           <button id="menu-btn">
             <span class="material-symbols-sharp"> menu </span>
-          </button>
+         </button>
+		 
+
+
           <div class="theme-toggler">
-            <span class="material-symbols-sharp active"> light_mode </span>
-            <span class="material-symbols-sharp"> dark_mode </span>
+			
+			<span class="edit">
+		 	  <button id="menu-btnedit">
+            <span class="material-symbols-sharp"> edit </span>
+         </button> 
+		 
+		 </span>     
+      
           </div>
+		  
+
+		  
         </div>
         <!-- End of top -->
 
       </div>
+	  
+	  
     </div>
 	
     <script type="module" src="./index7.js"></script>
