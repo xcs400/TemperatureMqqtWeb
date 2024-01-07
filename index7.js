@@ -192,7 +192,7 @@ var temperatureLayout = {
     family: "poppins, san-serif",
   },
   colorway: ["#05AD86"],
-  margin: { t: 40, b: 120, l: 40, r: 10, pad: 10 },
+  margin: { t: 40, b: 120, l: 50, r: 10, pad: 10 },
   plot_bgcolor: chartBGColor,
   paper_bgcolor: chartBGColor,
   xaxis: {
@@ -504,7 +504,7 @@ if (jsonResponse.TempCelsius !== undefined  )     // cas dernier message update 
   var TZ= u.split(',')
   
   var T2=TZ[TZ.length-1];
-  var T1=TZ[TZ.length-3];
+  var T1=TZ[TZ.length-2];
     
   if (T2 >T1)
   {var divsToShow = document.getElementsByClassName('tendenceup');
@@ -755,7 +755,7 @@ function handleDeviceChange(e) {
     historyCharts.forEach((chart) => Plotly.relayout(chart, updateHistory));
   } else {
     var updateHistory = {
-      width: 550,
+      width: 4,
       height: 260,
       "xaxis.autorange": true,
       "yaxis.autorange": true,
@@ -774,7 +774,7 @@ const mqttupdatedsec = document.querySelector(".updatedsec");
   var mqttService 
   
 function onConnect(message) {
-  mqttStatus.textContent = "Connected";
+  mqttStatus.textContent = "Connected to broker";
 }
 function onMessage(topic, message) {
   var stringResponse = message.toString();
