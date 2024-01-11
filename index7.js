@@ -608,8 +608,10 @@ function updateSensorReadings(jsonResponse) {
     //var val = Object.values(jsonResponse);
     //let battery = Number(val[5] ).toFixed(2);
     let battery = Number(jsonResponse.Charge).toFixed(2);
+	let rssi = Number(jsonResponse.rssi).toFixed(2);
 
-    updateBoxes(temperature, voltage, battery, voltage); //use volatge comm humidi
+
+    updateBoxes(temperature, voltage, battery, voltage , rssi); //use volatge comm humidi
  
   }
 
@@ -725,16 +727,21 @@ function updateMiniMaxi(mini, maxi) {
 }
 
 
-function updateBoxes(temperature, voltage, battery, humidity) {
+function updateBoxes(temperature, voltage, battery, humidity,rssi) {
   let temperatureDiv = document.getElementById("temperature");
   let voltageDiv = document.getElementById("voltage");
   let batteryDiv = document.getElementById("battery");
   let humidityDiv = document.getElementById("humidity");
+  let rssiDiv = document.getElementById("rssi");
 
   temperatureDiv.innerHTML = temperature + " °C";
   voltageDiv.innerHTML = voltage + " mV";
   batteryDiv.innerHTML = battery + " %";
   humidityDiv.innerHTML = humidity + " %";
+  if (rssi =="NaN")
+	   rssiDiv.innerHTML = "";
+  else
+    rssiDiv.innerHTML = "Rssi Lora: "+ rssi + "db";
 }
 
 
@@ -1020,6 +1027,7 @@ let UpdateElement = messageResponse;
       Name_OMG: tableauElements[1],
       Short_name: Libelle,
       TitleText: Libelle
+	  
     };
 
  // Ajout des propriétés de UpdateElementplus à UpdateElement

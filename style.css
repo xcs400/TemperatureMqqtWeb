@@ -614,3 +614,54 @@ main .histories h2 {
     grid-template-columns: 1fr;
   }
 }
+
+
+
+
+    .title {
+      text-align: center;
+      color: #3498db;
+    }
+
+
+
+    .connection-status,
+    .update-section {
+      background-color: #3498db;
+      padding: 5px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    .connection-status h3,
+    .update-section h2 {
+      display: inline-block;
+      color: #fff;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      margin-bottom: 2px;
+	        margin-right: 10px; /* Ajustez la valeur de margin-right selon vos préférences */
+    }
+
+    .connection-status .status {
+      color: #f39c12;
+    }
+
+    .update-section .updated,
+    .update-section .updatedsec {
+      margin-bottom: 2px;
+      padding: 2px;
+    }
+
+    .update-section h2 {
+      color: #fff;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      margin-right: 10px; /* Ajustez la valeur de margin-right selon vos préférences */
+    }
+
+    .update-section .updated {
+      color: #e74c3c;
+    }
+
+    .update-section .updatedsec {
+      color: #f39c12;
+    }
