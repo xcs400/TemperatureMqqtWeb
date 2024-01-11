@@ -12,6 +12,11 @@
 
   <script src="https://cdn.plot.ly/plotly-2.16.1.min.js"></script>
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+  
+  <script src="regression/dist/regression.min.js"></script>
+
+
+
   <link rel="stylesheet" href="./style.css" />
 </head>
 
@@ -43,13 +48,31 @@
               <tr>
                 <td>Libelle:</td>
                 <td><input id="Libelle" size="30" type="text" /></td>
+				  <td><button id="OKmyPopupvalue">OK</button></td>
+                <td></td>
+              </tr>
+
+              <tr>
+                <td>Nouveau:</td>
+                <td><input id="Nouveau" size="30" type="text" /></td>
                 <td></td>
               </tr>
               <tr>
-                <td>Autre:</td>
-                <td><input id="autre" size="30" type="text" /></td>
-                <td><button id="OKmyPopupvalue">OK</button></td>
-              </tr>
+                <td>Efface:</td>
+                <td><input id="Efface" size="30" type="text" /></td>
+                <td></td>
+              </tr>			  
+             <tr>
+                <td>Has_Humidity:</td>
+                <td><input id="Has_Humidity" size="30" type="text" /></td>
+                <td></td>
+              </tr>	
+             <tr>
+                <td>Has_Battery:</td>
+                <td><input id="Has_Battery" size="30" type="text" /></td>
+                <td></td>
+              </tr>				  
+
             </table>
           </div>
         </h2>

@@ -137,10 +137,19 @@ b {
   width: 30vh;
 }
 
+
+.history-divs {
+	height: 28vh;
+}
+
+
 /***** Sidebar Image*****/
 aside {
   height: 100vh;
 }
+
+
+  
 aside .top {
   display: flex;
   align-items: center;
@@ -163,6 +172,7 @@ aside .sidebar {
   display: flex;
   flex-direction: column;
   height: 86vh;
+  width:32rem;
   position: relative;
   top: 3rem;
 }
@@ -218,6 +228,7 @@ aside .sidebar a:hover span {
 /************* main ******************/
 main {
   margin-top: 1.4rem;
+  padding: 0 20rem;
 }
 
 main .insights {
@@ -453,38 +464,7 @@ main .histories h2 {
 
 /* MEDIA QUERIES */
 @media screen and (max-width: 1200px) {
-  .container {
-    width: 99%;
-    grid-template-columns: 7rem auto 23rem;
-  }
-  aside .logo h2 {
-    display: none;
-  }
 
-  aside .sidebar h3 {
-    display: none;
-  }
-  aside .sidebar a {
-    width: 5.6rem;
-  }
-  aside .sidebar a:last-child {
-    position: relative;
-    margin-top: 1.8rem;
-  }
-  main .insights {
-    grid-template-columns: 1fr;
-  }
-  main .histories {
-    width: 94%;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    margin: 2rem 0 0 8.8rem;
-  }
-  main .histories .history-charts {
-    grid-template-columns: 1fr;
-    width: 54vw;
-  }
 }
 
 @media only screen and (max-width: 992px) {
@@ -492,6 +472,8 @@ main .histories h2 {
     width: 94%;
     grid-template-columns: 12rem auto 23rem;
   }
+
+
   main .insights {
     grid-template-columns: repeat(2, 1fr);
     gap: 1.6rem;
