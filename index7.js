@@ -415,7 +415,7 @@ var humidityLayout = {
 };
 
 
-function createPotLink(id, text) {
+function createPotLink(id, text,color = "red" , additionalIcon = "device_thermostat" ) {
   const potLink = document.createElement("a");
   potLink.href = "#";
   potLink.classList.add("active");
@@ -425,11 +425,23 @@ function createPotLink(id, text) {
   spanIcon.classList.add("material-symbols-sharp");
   spanIcon.textContent = " dashboard ";
 
+  const spanIconTemp = document.createElement("span");
+   spanIconTemp.classList.add("material-symbols-sharp", "custom-color");
+ 
+  spanIconTemp.classList.add("material-symbols-sharp");
+   spanIconTemp.textContent = additionalIcon
+  spanIconTemp.style.color = color; // Définir la couleur dynamique
+ spanIconTemp.style.fontSize = "3rem"; // Définir la taille de police dynamique
+
+
+
   const h2Text = document.createElement("h2");
   h2Text.id = `${id}-text`;
   h2Text.textContent = text;
 
-  potLink.appendChild(spanIcon);
+  potLink.appendChild(spanIconTemp);
+
+
   potLink.appendChild(h2Text);
 
   return potLink;
@@ -442,10 +454,11 @@ var config = { responsive: true, displayModeBar: false, type: "scatter", };
 
 // Event listener when page is loaded
 window.addEventListener("load", (event) => {
-  Plotly.newPlot(temperatureHistoryDiv, [temperatureTrace], temperatureLayout, config);
+ // testjs()
+ Plotly.newPlot(temperatureHistoryDiv, [temperatureTrace], temperatureLayout, config);
   Plotly.newPlot(voltageHistoryDiv, [voltageTrace], voltageLayout, config);
   Plotly.newPlot(humidityHistoryDiv, [humidityTrace], humidityLayout, config);
-//testjs()
+
 
 StartDiscoSensor()
 
@@ -1143,6 +1156,138 @@ function changefiltre(dir) {
 
 }
 
+function trouverSommetsCreuxold(X, Y) {
+    let sommetsCreux = [];
+
+    for (let i = 1; i < X.length - 1; i++) {
+        if (Y[i] > Y[i - 1] && Y[i] > Y[i + 1]) {
+            // Point de sommet
+            sommetsCreux.push({ x: X[i], y: Y[i], type: "sommet" });
+        } else if (Y[i] < Y[i - 1] && Y[i] < Y[i + 1]) {
+            // Point de creux
+            sommetsCreux.push({ x: X[i], y: Y[i], type: "creux" });
+        }
+    }
+
+    return sommetsCreux;
+}
+
+
+function trouverSommetsCreux(X, Y) {
+    let sommetsCreux = [];
+
+    for (let i = 1; i < X.length - 1; i++) {
+        if (Y[i] > Y[i - 1] && Y[i] >= Y[i + 1]) {
+            // Point de sommet
+            sommetsCreux.push({ x: X[i], y: Y[i], type: "sommet" });
+        } else if (Y[i] <= Y[i - 1] && Y[i] < Y[i + 1]) {
+            // Point de creux
+            sommetsCreux.push({ x: X[i], y: Y[i], type: "creux" });
+        }
+    }
+
+    // Vérifier les points d'extrémité
+    if (Y[0] > Y[1]) {
+        sommetsCreux.push({ x: X[0], y: Y[0], type: "sommet" });
+    } else if (Y[0] < Y[1]) {
+        sommetsCreux.push({ x: X[0], y: Y[0], type: "creux" });
+    }
+
+    const lastIndex = X.length - 1;
+    if (Y[lastIndex] > Y[lastIndex - 1]) {
+        sommetsCreux.push({ x: X[lastIndex], y: Y[lastIndex], type: "sommet" });
+    } else if (Y[lastIndex] < Y[lastIndex - 1]) {
+        sommetsCreux.push({ x: X[lastIndex], y: Y[lastIndex], type: "creux" });
+    }
+
+    return sommetsCreux;
+}
+
+function réduireTaille(X, Y, nombreMaxSommetsCreux) {
+    let sommetsCreux = trouverSommetsCreux(X, Y);
+
+    while (sommetsCreux.length > nombreMaxSommetsCreux) {
+        let nouveauX = [];
+        let nouveauY = [];
+
+        for (let i = 0; i < sommetsCreux.length; i += 2) {
+            if (i + 1 < sommetsCreux.length) {
+                // Moyenne des valeurs deux par deux
+                let moyenneX = (sommetsCreux[i].x + sommetsCreux[i + 1].x) / 2;
+                let moyenneY = (sommetsCreux[i].y + sommetsCreux[i + 1].y) / 2;
+
+                nouveauX.push(moyenneX);
+                nouveauY.push(moyenneY);
+            } else {
+                // Si le nombre de points est impair, ajouter le dernier point
+                nouveauX.push(sommetsCreux[i].x);
+                nouveauY.push(sommetsCreux[i].y);
+            }
+        }
+
+        sommetsCreux = trouverSommetsCreux(nouveauX, nouveauY);
+    }
+
+    return sommetsCreux;
+}
+
+
+function extendArrays(extensionFactor, xx, yy) {
+  const x = [];
+  const y = [];
+
+  function linearInterpolation(x0, y0, x1, y1, steps) {
+    const dx = (x1 - x0) / steps;
+    const dy = (y1 - y0) / steps;
+    const result = [];
+
+    for (let i = 0; i < steps; i++) {
+      result.push({ x: x0 + i * dx, y: y0 + i * dy });
+    }
+
+    return result;
+  }
+
+  for (let i = 0; i < xx.length - 1; i++) {
+    const x0 = xx[i];
+    const y0 = parseFloat(yy[i]);
+    const x1 = xx[i + 1];
+    const y1 = parseFloat(yy[i + 1]);
+
+    x.push(x0);
+    y.push(y0.toFixed(2));
+
+    const interpolatedPoints = linearInterpolation(x0, y0, x1, y1, extensionFactor);
+    interpolatedPoints.forEach(point => {
+      x.push(point.x);
+      y.push(point.y.toFixed(2));
+    });
+  }
+
+  x.push(xx[xx.length - 1]);
+  y.push(parseFloat(yy[yy.length - 1]).toFixed(2));
+
+  return { x, y };
+}
+
+
+function ajoutBruit(datain, bruit) {
+    const dataresulted = {
+        x: [],
+        y: []
+    };
+
+    for (let i = 0; i < datain.x.length; i++) {
+      
+        const bruitY = Math.random() * bruit - bruit / 2;
+
+        dataresulted.x.push(datain.x[i] );
+        dataresulted.y.push(parseFloat(datain.y[i]) + bruitY);
+    }
+
+    return dataresulted;
+}
+
 
 
 
@@ -1156,11 +1301,9 @@ var temperatureHistoryDiv2 = document.getElementById("canvasAfterid");
  Plotly.newPlot(temperatureHistoryDiv2, [temperatureTrace2], temperatureLayout2, config);
 
 
-  const data = {
-        "Date": "2024-01-10 02:47,2024-01-10 03:09,2024-01-10 03:32,2024-01-10 03:54,2024-01-10 04:18,2024-01-10 04:38,2024-01-10 04:58,2024-01-10 05:20,2024-01-10 05:54,2024-01-10 06:18,2024-01-10 06:38,2024-01-10 06:59,2024-01-10 07:19,2024-01-10 07:39,2024-01-10 08:03,2024-01-10 08:23,2024-01-10 08:43,2024-01-10 09:03,2024-01-10 09:33,2024-01-10 09:53,2024-01-10 10:18,2024-01-10 10:42,2024-01-10 11:06,2024-01-10 11:30,2024-01-10 11:54,2024-01-10 12:14,2024-01-10 12:40,2024-01-10 13:18,2024-01-10 13:41,2024-01-10 14:05,2024-01-10 14:25,2024-01-10 14:47,2024-01-10 15:07,2024-01-10 15:29,2024-01-10 15:49,2024-01-10 16:09,2024-01-10 16:41,2024-01-10 17:08,2024-01-10 17:30,2024-01-10 17:50,2024-01-10 18:10,2024-01-10 18:30,2024-01-10 18:50,2024-01-10 19:10,2024-01-10 19:34,2024-01-10 20:07,2024-01-10 20:29,2024-01-10 20:53",
-        "Temp": "3.75,3.77,6.75,3.75,3.75,3.75,3.75,3.75,3.75,3.75,9.75,5.75,3.75,3.75,3.75,3.75,9.75,3.75,3.75,3.77,3.77,4.00,4.00,4.00,4.07,4.20,4.25,10.25,4.25,4.25,4.25,14.25,4.27,4.25,4.25,15.25,4.25,4.25,4.05,4.00,4.00,4.00,4.00,4.00,4.00,4.00,4.00,4.00"
-    };
 
+
+  const data = {"Date":"2024-01-12 00:27,2024-01-12 00:55,2024-01-12 01:26,2024-01-12 01:54,2024-01-12 02:22,2024-01-12 02:50,2024-01-12 03:18,2024-01-12 03:46,2024-01-12 04:14,2024-01-12 04:42,2024-01-12 05:10,2024-01-12 05:38,2024-01-12 06:06,2024-01-12 06:34,2024-01-12 07:02,2024-01-12 07:30,2024-01-12 07:58,2024-01-12 08:26,2024-01-12 08:54,2024-01-12 09:22,2024-01-12 09:50,2024-01-12 10:18,2024-01-12 10:46,2024-01-12 11:14,2024-01-12 11:42,2024-01-12 12:10,2024-01-12 12:38,2024-01-12 13:08,2024-01-12 13:36,2024-01-12 14:04,2024-01-12 14:32,2024-01-12 15:00,2024-01-12 15:28,2024-01-12 15:56,2024-01-12 16:24,2024-01-12 16:52,2024-01-12 17:20,2024-01-12 17:48,2024-01-12 18:16,2024-01-12 18:44,2024-01-12 19:12,2024-01-12 19:40,2024-01-12 20:12,2024-01-12 20:40,2024-01-12 21:10,2024-01-12 22:04,2024-01-12 22:12","Temp":"17.13,17.54,18.40,17.18,16.15,15.40,14.79,14.31,13.91,13.56,13.24,12.98,12.73,12.53,12.33,12.16,11.99,12.18,13.57,13.48,13.16,12.84,12.59,12.37,12.18,12.03,11.88,11.75,11.64,11.54,11.49,11.47,11.35,11.24,11.18,11.05,10.94,10.86,10.80,10.68,10.58,10.49,11.27,13.87,15.47,15.82,14.22"}
     // Convertir les dates en liste de secondes
     const dates = data.Date.split(',');
     const YY_point = data.Temp.split(',');
@@ -1176,15 +1319,152 @@ var temperatureHistoryDiv2 = document.getElementById("canvasAfterid");
     console.log(YY_point);
 
     // Vos données
-    const x = XX_seconds;
-    const y = YY_point;
+ //   const xx = XX_seconds;
+ //   const yy = YY_point;
+
+let xx=[
+  170820,
+  172500,
+  174360,
+  176040,
+  177720,
+  179400,
+  181080,
+  182760,
+  184440,
+  186120,
+  187800,
+  189480,
+  191160,
+  192840,
+  194520,
+  196200,
+  197880,
+  199560,
+  201240,
+  202920,
+  204600,
+  206280,
+  207960,
+  209640,
+  211320,
+  213000,
+  214680,
+  216480,
+  218160,
+  219840,
+  221520,
+  223200,
+  224880,
+  226560,
+  228240,
+  229920,
+  231600,
+  233280,
+  234960,
+  236640,
+  238320,
+  240000,
+  241920,
+  243600,
+  245400,
+  248640,
+  249120
+]
+
+let yy= [
+  "17.13",
+  "17.54",
+  "18.40",
+  "17.18",
+  "16.15",
+  "15.40",
+  "14.79",
+  "14.31",
+  "13.91",
+  "13.56",
+  "13.24",
+  "12.98",
+  "12.73",
+  "12.53",
+  "12.33",
+  "12.16",
+  "11.99",
+  "12.18",
+  "13.57",
+  "13.48",
+  "13.16",
+  "12.84",
+  "12.59",
+  "12.37",
+  "12.18",
+  "12.03",
+  "11.88",
+  "11.75",
+  "11.64",
+  "11.54",
+  "11.49",
+  "11.47",
+  "11.35",
+  "11.24",
+  "11.18",
+  "11.05",
+  "10.94",
+  "10.86",
+  "10.80",
+  "10.68",
+  "10.58",
+  "10.49",
+  "11.27",
+  "13.87",
+  "15.47",
+  "15.82",
+  "14.22"
+]
+
+// Utilisation de la fonction
+const extensionFactor = 10;
+const resultaument = extendArrays(extensionFactor, xx, yy);
+
+xx=[]
+yy=[]
+
+ var databuit=ajoutBruit(resultaument,1)
+ 
+for (let i = 0; i < databuit.x.length; ++i) {
+    xx.push(databuit.x[i]);
+    yy.push(databuit.y[i]);
+}
 
 
-
-    const degree = x.length-1
+    const degree = xx.length-1
 
    // Dessiner les graphiques
-    drawGraph(temperatureHistoryDiv1, x, y, 'Avant');
+    drawGraph(temperatureHistoryDiv1, xx, yy, 'Avant');
+
+  let nombreMaxSommetsCreux = 20;
+
+let dataresulted = réduireTaille(xx, yy, nombreMaxSommetsCreux);
+console.log(dataresulted);
+
+
+
+ let x = [];
+ let y = [];
+
+for (let i = 0; i < dataresulted.length; ++i) {
+    x.push(dataresulted[i].x);
+    y.push(dataresulted[i].y);
+}
+
+
+
+  drawGraph(temperatureHistoryDiv2, x, y, 'Apres');
+
+
+return
+
+
 
 
     // Appliquer les polynômes
