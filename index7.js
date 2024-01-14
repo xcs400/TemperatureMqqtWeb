@@ -63,8 +63,7 @@ function addClicker(idfromcreat) {
     const actualClickedId = clickedId === '-1' ? idfromcreat : clickedId;
 
     // Trouver l'élément dans ListedeSensor qui correspond à actualClickedId
-    const clickedElement = ListedeSensor.find(element => element.pot === actualClickedId);
-
+const clickedElement = ListedeSensor.find(element => element.pot == actualClickedId);
     // Vérifier si l'élément a été trouvé
     if (clickedElement) {
       // Utiliser les propriétés de l'élément trouvé
@@ -77,12 +76,13 @@ function addClicker(idfromcreat) {
       
       // Recharger la page après avoir défini les cookies
 
-	  document.getElementById(`${'pot'+idfromcreat}-text`).innerText = clickedElement.Short_name;
+	//  document.getElementById(`${'pot'+idfromcreat}-text`).innerText = clickedElement.Short_name;
       location.reload();
     }
   });
 
   // Assurez-vous d'accéder à l'élément avec le bon ID
+  if (clickedElement !=undefined)
   document.getElementById(`${'pot'+idfromcreat}-text`).innerText = clickedElement.Short_name;
 }
 
@@ -98,8 +98,9 @@ function addClicker(idfromcreat) {
 // Event listener for the button click
 OKmyPopupvalue.addEventListener("click", () => {
     // MQTT topic based on user settings
-    var topic = `home/${getCookie("Name_OMG")}/MERGEtoMQTT/Sensor/${getCookie("SelectedDevice")}/Settings`;
-
+ //   var topic = `home/${getCookie("Name_OMG")}/MERGEtoMQTT/Sensor/${getCookie("SelectedDevice")}/Settings`;
+   var topic = `home/Sensor/${getCookie("SelectedDevice")}/Settings`;
+var has_at_leston=0
     // Initial JSON string
     var textit = '{';
 
@@ -144,10 +145,11 @@ OKmyPopupvalue.addEventListener("click", () => {
         }
 
         // Add a comma for non-first elements
-        if (i !== 0) {
+        if (has_at_leston !== 0) {
             textit += ',';
         }
 
+		has_at_leston++
         // Construct the JSON string based on the element type
         if (inputElements[i].id === "Nouveau" && inputElements[i].value.trim() !== "") {
             textit += `"${inputElements[i].value}":"${inputElements[i].value}"`;
@@ -155,9 +157,9 @@ OKmyPopupvalue.addEventListener("click", () => {
             textit += `"${inputElements[i].id}":"${inputElements[i].value}"`;
             
             // Update the page title with the first non-empty element's value
-            if (i === 0) {
-                TittlePage.innerHTML = inputElements[i].value;
-            }
+   //         if (i === 0) {
+   //             TittlePage.innerHTML = inputElements[i].value;
+     //       }
         }
 
         // Add the element to the unique elements object
@@ -168,7 +170,8 @@ OKmyPopupvalue.addEventListener("click", () => {
     textit += '}';
 
     // Publish the updated settings to the MQTT topic
-    mqttService.publish(topic, textit, { retain: true });
+   // mqttService.publish(topic, textit, { retain: true });
+	   mqttService_Hive.publish(topic, textit, { retain: true });
 });
 /*
 OKmyPopupvalue.addEventListener("click", () => {
@@ -495,7 +498,7 @@ addClicker("pot4", "Temperature Hall", "0x28cfda81e3d53c89", "Temperature du Hal
     document.cookie = "Has_Battery= 1"
     document.cookie = "Has_Humidity= 1"
 
-    document.getElementById("Libelle").value = getCookie("TitleText")
+    document.getElementById("Libelle").value = getCookie("SelectedDevice")  // Libelle=element du menu de gauche
 	SelectedDevice="Yaourt1";
   }
 
@@ -508,7 +511,8 @@ addClicker("pot4", "Temperature Hall", "0x28cfda81e3d53c89", "Temperature du Hal
     else
       var val = "none";
 
-    document.getElementById("Libelle").value = getCookie("TitleText")
+ 	
+	TittlePage.innerHTML = getCookie("TitleText")  //Libelle=element du menu de gauche
 
     const voltage = document.getElementsByClassName("voltage");
     for (var i = 0; i < voltage.length; i++) {
@@ -850,15 +854,43 @@ function handleDeviceChange(e) {
 /*
   MQTT Message Handling Code
 */
+const mqttStatus_Hive = document.querySelector(".status_Hive");
 const mqttStatus = document.querySelector(".status");
 const mqttupdated = document.querySelector(".updated");
 const mqttupdatedsec = document.querySelector(".updatedsec");
 
 var mqttService
+var mqttService_Hive
 
+
+function onConnect_Hive(message) {
+  mqttStatus_Hive.textContent = "Connected to broker";
+}
 function onConnect(message) {
   mqttStatus.textContent = "Connected to broker";
 }
+
+
+function onMessage_Hive(topic, message) {
+	  var stringResponse = message.toString();
+
+  stringResponse=stringResponse.replace('id:', '"id":');
+  console.log(stringResponse)  
+  
+  var messageResponse = JSON.parse(stringResponse);
+   if (topic.search("Sensor") !=  -1  )
+	{updateDiscovery(topic,messageResponse);
+
+	}
+	
+	var SelectedDevice = getCookie("SelectedDevice")
+    let indexElement = ListedeSensor.findIndex(element => element.SelectedDevice === SelectedDevice);
+	if (indexElement != -1)
+		ajouterOuRemplacerElements(ListedeSensor[indexElement])
+
+}
+
+
 function onMessage(topic, message) {
   var stringResponse = message.toString();
 
@@ -872,6 +904,8 @@ function onMessage(topic, message) {
 	{updateDiscovery(topic,messageResponse);
 	return
 	}
+	
+	
   if (messageResponse.hex == undefined && messageResponse.name !== undefined)
     updateSensorReadings(messageResponse);
   else {
@@ -879,11 +913,6 @@ function onMessage(topic, message) {
 
   }
   
-      var SelectedDevice = getCookie("SelectedDevice")
-      let indexElement = ListedeSensor.findIndex(element => element.SelectedDevice === SelectedDevice);
-	
-	if (indexElement != -1)
-		ajouterOuRemplacerElements(ListedeSensor[indexElement])
 
   //b=0
   // mqttService.publish(topic,b)
@@ -893,6 +922,7 @@ function onError(error) {
   console.log(`Error encountered :: ${error}`);
   mqttStatus.textContent = "Error";
 }
+
 
 function onClose() {
   console.log(`MQTT connection closed!`);
@@ -904,7 +934,15 @@ function padWithLeadingZeros(num, totalLength) {
   return String(num).padStart(totalLength, '0');
 }
 
+function onError_Hive(error) {
+  console.log(`Error encountered Hive :: ${error}`);
+  mqttStatus_Hive.textContent = "Error";
+}
 
+function onClose_Hive() {
+  console.log(`MQTT connection closed onClose_Hive !`);
+  mqttStatus_Hive.textContent = "Closed";
+}
 
 // Fonction pour ajouter ou remplacer des éléments à partir d'un objet JSON
 function ajouterOuRemplacerElements(objetJson) {
@@ -948,123 +986,88 @@ function ajouterOuRemplacerElements(objetJson) {
 
 
 
-/**
- * Fonction de mise à jour de la découverte des capteurs.
- * Cette fonction est appelée en réponse à la réception de données de découverte via MQTT.
- * Elle gère la mise à jour de la liste des capteurs et de l'interface utilisateur.
+ /**
+ * Fonction de mise à jour de la découverte.
  *
- * @param {string} topic - Le sujet MQTT associé à la découverte du capteur.
- * @param {Object} messageResponse - Objet contenant des informations sur la découverte (par exemple, Libelle pour les réponses "Settings").
- * @returns {void} - Aucune valeur de retour explicite.
+ * Cette fonction est utilisée pour gérer la mise à jour des découvertes en fonction des messages reçus via MQTT.
  *
- * Détails du fonctionnement :
- * - Analyse du sujet MQTT pour extraire des informations telles que le SelectedDevice, le Name_OMG, etc.
- * - Création d'un nouvel élément de capteur avec ces informations.
- * - Vérification si l'élément de capteur existe déjà dans la liste.
- *   - Si oui, mise à jour de l'élément existant.
- *   - Sinon, ajout du nouvel élément à la liste.
- * - Mise à jour de l'interface utilisateur, notamment en ajoutant des liens et des gestionnaires de clics.
+ * @param {string} topic - Le sujet du message MQTT.
+ * @param {any} messageResponse - La réponse du message MQTT.
  *
- * Remarque :
- * La fonction peut être appelée avec des données de découverte correspondant à différents événements MQTT.
- * Si le dernier élément dans le sujet MQTT est "Settings", la fonction met à jour certains attributs de l'élément.
+ * @returns {void} Aucun retour, la fonction effectue des opérations de mise à jour sur ListedeSensor et le document HTML.
  */
- 
- 
 
 // Fonction de mise à jour de la découverte
 function updateDiscovery(topic, messageResponse) {
   // Affichage dans la console du sujet (topic) et de la réponse (messageResponse)
- 
-  console.log("updateDiscovery;",topic, messageResponse);
+  console.log("updateDiscovery;", topic, messageResponse);
 
   // Séparation du sujet en éléments à l'aide du délimiteur '/'
   const tableauElements = topic.split('/');
   // Récupération du dernier élément du tableau
   const dernierElement = tableauElements[tableauElements.length - 1];
- const avantdernierElement = tableauElements[tableauElements.length - 2];
+  const avantdernierElement = tableauElements[tableauElements.length - 2];
 
   // Vérification si le dernier élément n'est pas "Settings"
   if (dernierElement !== "Settings") {
-    // Construction du sujet pour le dernier message
- //   var topicLastMessage = tableauElements[0] + "/" + tableauElements[1] + "/MERGEtoMQTT/" + dernierElement + "/LastMessage/#";
-
     // Création d'un nouvel élément avec des propriétés spécifiques
     let nouvelElement = {
-	  pot: ListedeSensor.length+1,
+      pot: ListedeSensor.length + 1,
       SelectedDevice: dernierElement,
       Name_OMG: tableauElements[1],
       Short_name: dernierElement,
       TitleText: dernierElement
-
     };
 
     // Recherche de l'index de l'élément existant dans le tableau
     let indexElementExistant = ListedeSensor.findIndex(element => element.SelectedDevice === nouvelElement.SelectedDevice);
+
     // Vérification si l'élément existe déjà
     if (indexElementExistant !== -1) {
-		 console.log("existe deja !");
-     } else {
+      console.log("existe deja !");
+    } else {
       // Ajout du nouvel élément au tableau si l'élément n'existe pas
-  
       ListedeSensor.push(nouvelElement);
       console.log("Élément ajouté avec succès !");
 
       // Sélection de la barre latérale dans le document HTML
       const sidebar = document.querySelector(".sidebar");
       // Création d'un lien pour le nouvel élément
-      const potLink = createPotLink("pot" + ListedeSensor.length, dernierElement);
-      
+      const potLink = createPotLink(`pot${ListedeSensor.length}`, dernierElement);
+
       // Ajout du lien à la barre latérale
       sidebar.appendChild(potLink);
 
       // Ajout d'un "clicker" avec des paramètres spécifiques
       addClicker(ListedeSensor.length);
-	  
+
+      // Pour obtenir les détails des paramètres
+      initializeMQTTConnection_Hive("wss://811bda171b64435d9323de3dac2d9bbf.s1.eu.hivemq.cloud:8884/mqtt", "home/Sensor/#");
     }
   } else {
-    // Récupération du libellé depuis la réponse
-    var Libelle = messageResponse.Libelle;
+    // Recherche de l'index de l'élément existant dans le tableau
+    const indexElementExistant = ListedeSensor.findIndex(element => element.SelectedDevice === avantdernierElement);
 
-   // Recherche de l'index de l'élément existant dans le tableau
-    let indexElementExistant = ListedeSensor.findIndex(element => element.SelectedDevice === avantdernierElement);
-
-// Décoder la chaîne JSON en un objet JavaScript
-let UpdateElement = messageResponse;
-
-
-    // Création d'un élément de mise à jour avec des propriétés spécifiques
-    let UpdateElementplus = {
-		pot: indexElementExistant+1,
-      SelectedDevice: avantdernierElement,
-      Name_OMG: tableauElements[1],
-      Short_name: Libelle,
-      TitleText: Libelle
-	  
-    };
-
- // Ajout des propriétés de UpdateElementplus à UpdateElement
-UpdateElement.pot = UpdateElementplus.pot;
-UpdateElement.SelectedDevice = UpdateElementplus.SelectedDevice;
-UpdateElement.Name_OMG = UpdateElementplus.Name_OMG;
-UpdateElement.Short_name = UpdateElementplus.Short_name;
-UpdateElement.TitleText = UpdateElementplus.TitleText;
-
-
+    // Décoder la chaîne JSON en un objet JavaScript
+    const updateElement = messageResponse;
 
     // Vérification si l'élément existe déjà
     if (indexElementExistant !== -1) {
-		
       // Mise à jour de l'élément existant avec l'élément mis à jour
-      ListedeSensor[indexElementExistant] = UpdateElement;
-//	   addClicker(id,                           text,          selectedDevice, titleText,        nameOMG, hasBattery, hasHumidity) {  
-		var pos=parseInt(indexElementExistant)+1
-	   addClicker( pos );
+      ListedeSensor[indexElementExistant] = updateElement;
 
+      // Appel de la fonction addClicker avec la position mise à jour
+      addClicker(indexElementExistant + 1);
 
+      // Mettre à jour le texte de l'élément HTML correspondant
+      const potTextElement = document.getElementById(`pot${indexElementExistant + 1}-text`);
+      if (potTextElement) {
+        potTextElement.innerText = updateElement.Short_name;
+      }
     }
   }
 }
+
 function StartDiscoSensor() {
 
       initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/" + "OMG_ESP32_LORA" + "/MERGEtoMQTT/Sensor/#" )
@@ -1088,6 +1091,10 @@ function fetchMQTTConnection() {
       var Name_OMG = getCookie("Name_OMG")
       var Has_Battery = getCookie("Has_Battery")
 
+    initializeMQTTConnection("wss://811bda171b64435d9323de3dac2d9bbf.s1.eu.hivemq.cloud:8884/mqtt", "home/" + "/MERGEtoMQTT/" + "/Sensor/#");
+
+
+
 
       initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/" + Name_OMG + "/MERGEtoMQTT/" + SelectedDevice + "/LastMessage/#");
 
@@ -1102,17 +1109,52 @@ function fetchMQTTConnection() {
       return response.json();
     })
 }
+
+var onser=0
 function initializeMQTTConnection(mqttServer, mqttTopic) {
   console.log(
     `Initializing connection to :: ${mqttServer}, topic :: ${mqttTopic}`
   );
   var fnCallbacks = { onConnect, onMessage, onError, onClose };
-
+if (onser==0){
   mqttService = new MQTTService(mqttServer, fnCallbacks);
-  mqttService.connect({ retain: true });
+    mqttService.connect({ retain: true });
+
+  onser=1
+}
 
   mqttService.subscribe(mqttTopic);
 }
+
+function initializeMQTTConnection_Hive(mqttServer, mqttTopic) {
+  console.log(
+    `Initializing connection to initializeMQTTConnection_Hive:: ${mqttServer}, topic :: ${mqttTopic}`
+  );
+
+  const options = {
+
+  username: 'hivemq.webclient.1705178009968',
+  password: '013A2BSDqGCpa&sm,.:r'
+ 
+	 
+};  
+  const optionsjj = {
+   clientId: 'miclient-idf',
+  username: 'xcs400HI',
+  password: 'xcs400.1HI'
+   
+};
+
+  var fnCallbacks = { onConnect_Hive, onMessage_Hive, onError_Hive, onClose_Hive };
+
+  mqttService_Hive = new MQTTService(mqttServer, fnCallbacks );
+    mqttService_Hive.connect(options); // Pass options to the connect method
+
+
+  
+  mqttService_Hive.subscribe(mqttTopic);
+}
+
 
 
 // On ajoute au prototype de l'objet Date une méthode personnalisée

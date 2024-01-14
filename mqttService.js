@@ -5,8 +5,8 @@ export class MQTTService {
     this.messageCallbacks = messageCallbacks;
   }
 
-  connect() {
-    this.mqttClient = mqtt.connect(this.host);
+  connect(options) {
+    this.mqttClient = mqtt.connect(this.host,options);
 
     // MQTT Callback for 'error' event
     this.mqttClient.on("error", (err) => {
@@ -14,6 +14,9 @@ export class MQTTService {
       this.mqttClient.end();
       if (this.messageCallbacks && this.messageCallbacks.onError)
         this.messageCallbacks.onError(err);
+	   if (this.messageCallbacks && this.messageCallbacks.onError_Hive)
+        this.messageCallbacks.onError_Hive(err);
+	
     });
 
     // MQTT Callback for 'connect' event
@@ -22,12 +25,19 @@ export class MQTTService {
       if (this.messageCallbacks && this.messageCallbacks.onConnect) {
         this.messageCallbacks.onConnect("Connected");
       }
+	  if (this.messageCallbacks && this.messageCallbacks.onConnect_Hive) {
+        this.messageCallbacks.onConnect_Hive("Connected");
+      }
     });
 
     // Call the message callback function when message arrived
     this.mqttClient.on("message", (topic, message) => {
       if (this.messageCallbacks && this.messageCallbacks.onMessage) {
         this.messageCallbacks.onMessage(topic, message);
+		return;
+      }
+	   if (this.messageCallbacks && this.messageCallbacks.onMessage_Hive) {
+        this.messageCallbacks.onMessage_Hive(topic, message);
       }
     });
 
@@ -35,6 +45,9 @@ export class MQTTService {
       console.log(`MQTT client disconnected`);
       if (this.messageCallbacks && this.messageCallbacks.onClose)
         this.messageCallbacks.onClose();
+    
+	    if (this.messageCallbacks && this.messageCallbacks.onClose_Hive)
+        this.messageCallbacks.onClose_Hive();
     });
   }
 
