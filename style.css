@@ -599,7 +599,7 @@ main .histories h2 {
   .container {
     width: 100%;
     grid-template-columns: 1fr;
-    margin: 1rem 0 1rem 0;
+    margin: rem 0 1rem 0;
   }
   
 
@@ -620,6 +620,7 @@ main .histories h2 {
   main .history-charts {
     display: grid;
     grid-template-columns: 1fr;
+
   }
 }
 

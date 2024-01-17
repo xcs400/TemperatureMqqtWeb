@@ -248,13 +248,14 @@ var temperatureLayout = {
   title: {
     text: "Temperature",
   },
+ 
   font: {
     size: 14,
     color: chartFontColor,
     family: "poppins, san-serif",
   },
   colorway: ["#05AD86"],
-  margin: { t: 40, b: 120, l: 50, r: 10, pad: 10 },
+  margin: { t: 40, b: 120, l: 30, r: 50, pad: 10 },
   plot_bgcolor: chartBGColor,
   paper_bgcolor: chartBGColor,
   xaxis: {
@@ -284,7 +285,7 @@ var voltageLayout = {
     family: "poppins, san-serif",
   },
   colorway: ["#05AD86"],
-  margin: { t: 40, b: 120, l: 50, r: 10, pad: 0 },
+  margin: { t: 40, b: 120, l: 30, r:50, pad: 0 },
   plot_bgcolor: chartBGColor,
   paper_bgcolor: chartBGColor,
   xaxis: {
@@ -308,7 +309,7 @@ var humidityLayout = {
     family: "poppins, san-serif",
   },
   colorway: ["#05AD86"],
-  margin: { t: 40, b: 120, l: 40, r: 10, pad: 0 },
+  margin: { t: 40, b: 120, l: 30, r: 50, pad: 0 },
   plot_bgcolor: chartBGColor,
   paper_bgcolor: chartBGColor,
   xaxis: {
