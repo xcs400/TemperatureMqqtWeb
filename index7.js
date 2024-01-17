@@ -1237,9 +1237,31 @@ function getCookiehisto(name) {
   }
   return null;
 }
-function updatehistojour(data, item) {
+
+
+
+function generateValues() {
+  const values = [];
+  for (let i = -50; i <= 50; i += 0.1) {
+    values.push(i);
+  }
+  return values;
+}
+
+function createFixedGradientColors(values) {
+	values=generateValues()
 	
-	var item = getCookie("SelectedDevice")
+  return values.map(value => {
+    const normalizedValue = (value + 50) / 100; // Normaliser la valeur entre 0 et 1
+    const red = Math.round(255 * normalizedValue);
+    const blue = Math.round(255 * (1 - normalizedValue));
+    return `rgba(${red}, 0, ${blue}, 1)`;
+  });
+}
+
+function updatehistojour(data, item) {
+  var item = getCookie("SelectedDevice");
+
   // Extraire les dates, tmin et tmax
   const dates = data[item].map(entry => entry.date);
   const tminValues = data[item].map(entry => entry.tmin);
@@ -1248,31 +1270,28 @@ function updatehistojour(data, item) {
   // Calculer la différence entre tmax et tmin
   const diffValues = tmaxValues.map((max, index) => max - tminValues[index]);
 
-  // Créer le graphique
-  const trace = {
-    x: dates,
-    y: diffValues,
-	base:tminValues,
-    type: 'bar',
-    text: dates.map((date, index) => `Date: ${date}<br>Min: ${tminValues[index]}<br>Max: ${tmaxValues[index]}<br>Diff: ${diffValues[index]}`),
-    hoverinfo: 'text+y',
-  };
+
+// Créer le graphique
+const trace = {
+  x: dates,
+  y: diffValues,
+  base: tminValues,
+  type: 'bar',
+  text: dates.map((date, index) => `Date: ${date}<br>Min: ${tminValues[index]}<br>Max: ${tmaxValues[index]}<br>Diff: ${diffValues[index]}`),
+  hoverinfo: 'text+y'
+ 
+
+};
 
   const layout = {
     title: 'Min/Max',
-	
-	// width: 400,
-  //  height: 200,
-	 autosize: true,
-	  colorway: ["#05AD86"],
-  margin: { t: 40, b: 120, l: 40, r: 10, pad: 0 },
-  plot_bgcolor: chartBGColor,
-  paper_bgcolor: chartBGColor,
-  
+    width: 350,
+    autosize: true,
+ 
+    margin: { t: 40, b: 120, l: 40, r: 10, pad: 0 },
+    plot_bgcolor: chartBGColor,
+    paper_bgcolor: chartBGColor,
   };
-  
-    
-  
 
   const graphData = [trace];
 
