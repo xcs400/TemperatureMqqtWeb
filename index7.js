@@ -14,6 +14,10 @@ const OKmyPopupvalue = document.getElementById("OKmyPopupvalue");
 
 const popuptext = document.getElementsByClassName("popuptext");
 
+// Exemple d'utilisation
+let historyData = {};
+
+
 var SelectedDevice = "?"
 
 // Déclaration d'un tableau vide pour stocker les capteurs
@@ -367,6 +371,9 @@ window.addEventListener("load", (event) => {
   Plotly.newPlot(voltageHistoryDiv, [voltageTrace], voltageLayout, config);
   Plotly.newPlot(humidityHistoryDiv, [humidityTrace], humidityLayout, config);
 
+ historyData = JSON.parse(getCookiehisto('historyData')) || {};
+
+
 
 StartDiscoSensor()
 
@@ -491,7 +498,7 @@ function since() {
 
 }
 
-function updateSensorReadings(topic,jsonResponse) {
+function updateSensorReadings(topic,jsonResponse,copyhive) {
   console.log(typeof jsonResponse);
   console.log(jsonResponse);
 
@@ -553,10 +560,20 @@ function updateSensorReadings(topic,jsonResponse) {
     burstupdateCharts(jsonResponse.Date, jsonResponse.Vbatt, undefined, undefined, voltageHistoryDiv);
     burstupdateCharts(jsonResponse.Date, jsonResponse.Vbatt, undefined, undefined, humidityHistoryDiv);
 
-const messageResponse = JSON.stringify(jsonResponse);
-      initializeMQTTConnection_Hive("wss://811bda171b64435d9323de3dac2d9bbf.s1.eu.hivemq.cloud:8884/mqtt", );
+
+	if (copyhive==true)
+		{
+		const messageResponse = JSON.stringify(jsonResponse);
+		initializeMQTTConnection_Hive("wss://811bda171b64435d9323de3dac2d9bbf.s1.eu.hivemq.cloud:8884/mqtt", );
   
-	 mqttService_Hive.publish(topic,messageResponse,{retain:true, expiryInterval: 0})
+		mqttService_Hive.publish(topic,messageResponse,{retain:true, expiryInterval: 0})
+		}
+	 
+	 
+
+	  processMqttMessage(topic,jsonResponse);
+	console.log("historyData:",historyData);
+	 
     // xArray.push(ctr++);
     // xArray.push(ctr++);
 
@@ -763,7 +780,7 @@ function onMessage_Hive(topic, message) {
 	
 
 	if (messageResponse.hex == undefined && messageResponse.name !== undefined)
- 		updateSensorReadings("",messageResponse)   // topiv vide pour ne pas reposter sur hive
+ 		updateSensorReadings(topic, messageResponse,0)   // 0 ne pas reposter sur hive
 	
 
 }
@@ -785,7 +802,7 @@ function onMessage(topic, message) {
 	
 	
   if (messageResponse.hex == undefined && messageResponse.name !== undefined)
-    updateSensorReadings(topic,messageResponse);
+    updateSensorReadings(topic,messageResponse,1);
   else {
     console.log("skip:" + topic)
 
@@ -1129,4 +1146,135 @@ async function changefiltre(dir) {
  
   idategraph.innerHTML = filtre
 
+ 
+ 
+ // Récupérer l'élément avec l'ID "dategraph"
+ idategraph = document.getElementById('dategraph');
+// Récupérer la date actuelle
+let currentDate = new Date();
+// Récupérer la date dans l'élément "dategraph"
+let graphDate = new Date(idategraph.innerHTML);
+// Récupérer l'élément avec l'ID "graphContainer"
+let graphContainer = document.getElementById('graphContainer');
+// Comparer les dates
+if (graphDate > currentDate) {
+  // Si la date dans "dategraph" est après la date actuelle, rendre visible
+  graphContainer.style.display = 'block';
+} else {
+  // Sinon, rendre invisible
+  graphContainer.style.display = 'none';
+}
+
+
+}
+
+
+// Fonction utilitaire pour définir un cookie
+function setCookie(name, value) {
+  document.cookie = `${name}=${value}; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/`;
+}
+
+// Fonction principale pour traiter le message MQTT
+function processMqttMessage(topic, messageResponse) {
+  // Extraire la date du topic
+  const dateMatch = topic.match(/(\d{4}-\d{2}-\d{2})/);
+  const date = dateMatch ? dateMatch[0] : null;
+
+
+
+  if (date && messageResponse) {
+    // Extraire le nom, les températures min et max
+    const { name, Jour_tmin, Jour_tmax } = messageResponse;
+    if (Jour_tmin !== undefined && Jour_tmax !== undefined) {
+      // Si la liste pour le nom n'existe pas, la créer
+      if (!historyData[name]) {
+        historyData[name] = [];
+      }
+      // Ajouter les données à la liste
+      historyData[name] = addToHistory(historyData[name], date, Jour_tmin, Jour_tmax);
+    }
+  }
+
+
+  // Stocker historyData dans les cookies
+  setCookie('historyData', JSON.stringify(historyData));
+
+	updatehistojour(historyData , "Yaourt1")
+
+
+  return historyData;
+}
+
+// Fonction utilitaire pour ajouter des données à l'historique
+function addToHistory(historyList, date, tmin, tmax) {
+  // Vérifier si une entrée pour cette date existe déjà
+  const existingEntry = historyList.find(entry => entry.date === date);
+
+  // Si l'entrée existe, mettre à jour les valeurs min et max
+  if (existingEntry) {
+    existingEntry.tmin = tmin;
+    existingEntry.tmax = tmax;
+  } else {
+    // Sinon, ajouter une nouvelle entrée
+    historyList.push({ date, tmin, tmax });
+    // Trier la liste par ordre chronologique
+    historyList.sort((a, b) => new Date(a.date) - new Date(b.date));
+  }
+
+  return historyList;
+}
+
+
+
+// Fonction pour récupérer les données des cookies au lancement de la page
+function getCookiehisto(name) {
+  const cookies = document.cookie.split(';');
+  for (const cookie of cookies) {
+    const [cookieName, cookieValue] = cookie.split('=').map(c => c.trim());
+    if (cookieName === name) {
+      return cookieValue;
+    }
+  }
+  return null;
+}
+function updatehistojour(data, item) {
+	
+	var item = getCookie("SelectedDevice")
+  // Extraire les dates, tmin et tmax
+  const dates = data[item].map(entry => entry.date);
+  const tminValues = data[item].map(entry => entry.tmin);
+  const tmaxValues = data[item].map(entry => entry.tmax);
+
+  // Calculer la différence entre tmax et tmin
+  const diffValues = tmaxValues.map((max, index) => max - tminValues[index]);
+
+  // Créer le graphique
+  const trace = {
+    x: dates,
+    y: diffValues,
+	base:tminValues,
+    type: 'bar',
+    text: dates.map((date, index) => `Date: ${date}<br>Min: ${tminValues[index]}<br>Max: ${tmaxValues[index]}<br>Diff: ${diffValues[index]}`),
+    hoverinfo: 'text+y',
+  };
+
+  const layout = {
+    title: 'Min/Max',
+	
+	// width: 400,
+  //  height: 200,
+	 autosize: true,
+	  colorway: ["#05AD86"],
+  margin: { t: 40, b: 120, l: 40, r: 10, pad: 0 },
+  plot_bgcolor: chartBGColor,
+  paper_bgcolor: chartBGColor,
+  
+  };
+  
+    
+  
+
+  const graphData = [trace];
+
+  Plotly.newPlot('graphContainer', graphData, layout);
 }
