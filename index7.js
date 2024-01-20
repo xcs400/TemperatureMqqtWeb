@@ -21,12 +21,27 @@ let historyData = {};
 var SelectedDevice = "?"
 
 // Déclaration d'un tableau vide pour stocker les capteurs
-let ListedeSensor = [];
+/*let ListedeSensor = [];
 
   const options_hive = {
   username: 'hivemq.webclient.1705178009968',
   password: '013A2BSDqGCpa&sm,.:r'
  };  
+
+let SERVER_HIVE = "wss://811bda171b64435d9323de3dac2d9bbf.s1.eu.hivemq.cloud:8884/mqtt"
+*/
+
+let ListedeSensor = [];
+
+const options_hive = {
+  username: 'hivemq.webclient.1705178009968',
+  password: '013A2BSDqGCpa&sm,.:r'
+};
+
+let SERVER_HIVE = "wws://f9aa77ab.emqx.cloud:8083/mqtt"
+
+
+
 
 
 let filtre = ""
@@ -58,21 +73,21 @@ function getCookie(cName) {
 
 
 function addClicker(idfromcreat) {
-  const pot = document.getElementById("pot"+idfromcreat);
-   const clickedElement = ListedeSensor.find(element => element.pot === idfromcreat);
+  const pot = document.getElementById("pot" + idfromcreat);
+  const clickedElement = ListedeSensor.find(element => element.pot === idfromcreat);
 
 
   pot.addEventListener("click", (event) => {
     var clickedId = event.currentTarget.id;
-	
+
     console.log(clickedId);
-    clickedId=parseInt(clickedId.replace("pot",""))
-	
+    clickedId = parseInt(clickedId.replace("pot", ""))
+
     // Vérifier si clickedId est égal à -1, utiliser idfromcreat à la place
     const actualClickedId = clickedId === '-1' ? idfromcreat : clickedId;
 
     // Trouver l'élément dans ListedeSensor qui correspond à actualClickedId
-const clickedElement = ListedeSensor.find(element => element.pot == actualClickedId);
+    const clickedElement = ListedeSensor.find(element => element.pot == actualClickedId);
     // Vérifier si l'élément a été trouvé
     if (clickedElement) {
       // Utiliser les propriétés de l'élément trouvé
@@ -82,17 +97,17 @@ const clickedElement = ListedeSensor.find(element => element.pot == actualClicke
       document.cookie = `Has_Battery=${clickedElement.Has_Battery}`;
       document.cookie = `Has_Humidity=${clickedElement.Has_Humidity}`;
       document.cookie = `Short_name=${clickedElement.Short_name}`;
-      
+
       // Recharger la page après avoir défini les cookies
 
-	//  document.getElementById(`${'pot'+idfromcreat}-text`).innerText = clickedElement.Short_name;
+      //  document.getElementById(`${'pot'+idfromcreat}-text`).innerText = clickedElement.Short_name;
       location.reload();
     }
   });
 
   // Assurez-vous d'accéder à l'élément avec le bon ID
-  if (clickedElement !=undefined)
-  document.getElementById(`${'pot'+idfromcreat}-text`).innerText = clickedElement.Short_name;
+  if (clickedElement != undefined)
+    document.getElementById(`${'pot' + idfromcreat}-text`).innerText = clickedElement.Short_name;
 }
 
 
@@ -106,74 +121,74 @@ const clickedElement = ListedeSensor.find(element => element.pot == actualClicke
 
 // Event listener for the button click
 OKmyPopupvalue.addEventListener("click", () => {
-    // MQTT topic based on user settings
-    var topic = `home/Sensor/${getCookie("SelectedDevice")}/Settings`;
+  // MQTT topic based on user settings
+  var topic = `home/Sensor/${getCookie("SelectedDevice")}/Settings`;
 
-    // Initial JSON string
-    var textit = '{';
+  // Initial JSON string
+  var textit = '{';
 
-    // Get the popup element and its input elements
-    var myPopupElement = document.getElementById('myPopup');
-    var inputElements = myPopupElement.querySelectorAll('input');
+  // Get the popup element and its input elements
+  var myPopupElement = document.getElementById('myPopup');
+  var inputElements = myPopupElement.querySelectorAll('input');
 
-    // Default action is to "Add"
-    var action = "Ajoute";
+  // Default action is to "Add"
+  var action = "Ajoute";
 
-    // Check if the action is "Efface" or "Nouveau"
-    for (var i = 0; i < inputElements.length; i++) {
-        var trimmedValue = inputElements[i].value.trim();
-        if (trimmedValue === "Efface" || trimmedValue === "Nouveau") {
-            action = trimmedValue;
-            break;  // Exit the loop if "Efface" or "Nouveau" is detected
-        }
+  // Check if the action is "Efface" or "Nouveau"
+  for (var i = 0; i < inputElements.length; i++) {
+    var trimmedValue = inputElements[i].value.trim();
+    if (trimmedValue === "Efface" || trimmedValue === "Nouveau") {
+      action = trimmedValue;
+      break;  // Exit the loop if "Efface" or "Nouveau" is detected
+    }
+  }
+
+  // Use an object to store unique elements
+  var uniqueElements = {};
+
+  // Flag to check if the first element has been added
+  var isFirstElementAdded = false;
+
+  // Loop through input elements
+  for (var i = 0; i < inputElements.length; i++) {
+    // Check if the value or ID is empty
+    if (inputElements[i].value.trim() === "" || inputElements[i].id === "") {
+      continue;  // Ignore empty elements
     }
 
-    // Use an object to store unique elements
-    var uniqueElements = {};
-
-    // Flag to check if the first element has been added
-    var isFirstElementAdded = false;
-
-    // Loop through input elements
-    for (var i = 0; i < inputElements.length; i++) {
-        // Check if the value or ID is empty
-        if (inputElements[i].value.trim() === "" || inputElements[i].id === "") {
-            continue;  // Ignore empty elements
-        }
-
-        // Handle "Efface" and "Nouveau" cases
-        if ((action === "Efface" && inputElements[i].id === "Efface") || (action === "Nouveau" && inputElements[i].id === "Nouveau")) {
-            continue;  // Ignore "Efface" or "Nouveau" element
-        }
-
-        // Add a comma for non-first elements
-        if (isFirstElementAdded) {
-            textit += ',';
-        } else {
-            isFirstElementAdded = true;
-        }
-
-        // Construct the JSON string based on the element type
-        if (inputElements[i].id === "Nouveau" && inputElements[i].value.trim() !== "") {
-            textit += `"${inputElements[i].value}":"${inputElements[i].value}"`;
-        } else {
-            textit += `"${inputElements[i].id}":"${inputElements[i].value}"`;
-
-            // Update the page title with the first non-empty element's value
-            if (!isFirstElementAdded) {
-                TittlePage.innerHTML = inputElements[i].value;
-            }
-        }
-
-        // Add the element to the unique elements object
-        uniqueElements[inputElements[i].id] = true;
+    // Handle "Efface" and "Nouveau" cases
+    if ((action === "Efface" && inputElements[i].id === "Efface") || (action === "Nouveau" && inputElements[i].id === "Nouveau")) {
+      continue;  // Ignore "Efface" or "Nouveau" element
     }
 
-    // Complete the JSON string
-    textit += '}';
+    // Add a comma for non-first elements
+    if (isFirstElementAdded) {
+      textit += ',';
+    } else {
+      isFirstElementAdded = true;
+    }
 
-    // Publish the updated settings to the MQTT topic
-    mqttService_Hive.publish(topic, textit, { retain: true });
+    // Construct the JSON string based on the element type
+    if (inputElements[i].id === "Nouveau" && inputElements[i].value.trim() !== "") {
+      textit += `"${inputElements[i].value}":"${inputElements[i].value}"`;
+    } else {
+      textit += `"${inputElements[i].id}":"${inputElements[i].value}"`;
+
+      // Update the page title with the first non-empty element's value
+      if (!isFirstElementAdded) {
+        TittlePage.innerHTML = inputElements[i].value;
+      }
+    }
+
+    // Add the element to the unique elements object
+    uniqueElements[inputElements[i].id] = true;
+  }
+
+  // Complete the JSON string
+  textit += '}';
+
+  // Publish the updated settings to the MQTT topic
+  mqttService_Hive.publish(topic, textit, { retain: true, expiryInterval: 0 });
 });
 
 
@@ -191,7 +206,7 @@ themeToggler.addEventListener("click", () => {
   var popup = document.getElementById('myPopup');
   popup.classList.toggle('show');
 
-  });
+});
 
 /*
   Plotly.js graph and chart setup code
@@ -248,14 +263,14 @@ var temperatureLayout = {
   title: {
     text: "Temperature",
   },
- 
+
   font: {
     size: 14,
     color: chartFontColor,
     family: "poppins, san-serif",
   },
   colorway: ["#05AD86"],
-  margin: { t: 40, b: 120, l: 30, r: 50, pad: 10 },
+  margin: { t: 40, b: 120, l: 40, r: 50, pad: 10 },
   plot_bgcolor: chartBGColor,
   paper_bgcolor: chartBGColor,
   xaxis: {
@@ -285,7 +300,7 @@ var voltageLayout = {
     family: "poppins, san-serif",
   },
   colorway: ["#05AD86"],
-  margin: { t: 40, b: 120, l: 30, r:50, pad: 0 },
+  margin: { t: 40, b: 120, l: 40, r: 50, pad: 0 },
   plot_bgcolor: chartBGColor,
   paper_bgcolor: chartBGColor,
   xaxis: {
@@ -309,7 +324,7 @@ var humidityLayout = {
     family: "poppins, san-serif",
   },
   colorway: ["#05AD86"],
-  margin: { t: 40, b: 120, l: 30, r: 50, pad: 0 },
+  margin: { t: 40, b: 120, l: 40, r: 50, pad: 0 },
   plot_bgcolor: chartBGColor,
   paper_bgcolor: chartBGColor,
   xaxis: {
@@ -325,7 +340,7 @@ var humidityLayout = {
 };
 
 
-function createPotLink(id, text,color = "red" , additionalIcon = "device_thermostat" ) {
+function createPotLink(id, text, color = "red", additionalIcon = "device_thermostat") {
   const potLink = document.createElement("a");
   potLink.href = "#";
   potLink.classList.add("active");
@@ -336,15 +351,15 @@ function createPotLink(id, text,color = "red" , additionalIcon = "device_thermos
   spanIcon.textContent = " dashboard ";
 
   const spanIconTemp = document.createElement("span");
-   spanIconTemp.classList.add("material-symbols-sharp", "custom-color");
- 
+  spanIconTemp.classList.add("material-symbols-sharp", "custom-color");
+
   spanIconTemp.classList.add("material-symbols-sharp");
-   spanIconTemp.textContent = additionalIcon
-   
-  
-   
+  spanIconTemp.textContent = additionalIcon
+
+
+
   spanIconTemp.style.color = color; // Définir la couleur dynamique
- spanIconTemp.style.fontSize = "3rem"; // Définir la taille de police dynamique
+  spanIconTemp.style.fontSize = "3rem"; // Définir la taille de police dynamique
 
 
 
@@ -367,21 +382,21 @@ var config = { responsive: true, displayModeBar: false, type: "scatter", };
 
 // Event listener when page is loaded
 window.addEventListener("load", (event) => {
- // testjs()
- Plotly.newPlot(temperatureHistoryDiv, [temperatureTrace], temperatureLayout, config);
+  // testjs()
+  Plotly.newPlot(temperatureHistoryDiv, [temperatureTrace], temperatureLayout, config);
   Plotly.newPlot(voltageHistoryDiv, [voltageTrace], voltageLayout, config);
   Plotly.newPlot(humidityHistoryDiv, [humidityTrace], humidityLayout, config);
 
- historyData = JSON.parse(getCookiehisto('historyData')) || {};
+  historyData = JSON.parse(getCookiehisto('historyData')) || {};
 
 
 
-StartDiscoSensor()
+  StartDiscoSensor()
 
 
-const sidebar = document.querySelector(".sidebar");
+  const sidebar = document.querySelector(".sidebar");
 
- var SelectedDevice = getCookie("SelectedDevice")
+  var SelectedDevice = getCookie("SelectedDevice")
 
   if (SelectedDevice == undefined) {
     document.cookie = "SelectedDevice = Yaourt1"         // object
@@ -391,7 +406,7 @@ const sidebar = document.querySelector(".sidebar");
     document.cookie = "Has_Humidity= 1"
 
     document.getElementById("Libelle").value = getCookie("SelectedDevice")  // Libelle=element du menu de gauche
-	SelectedDevice="Yaourt1";
+    SelectedDevice = "Yaourt1";
   }
 
   else {
@@ -403,8 +418,8 @@ const sidebar = document.querySelector(".sidebar");
     else
       var val = "none";
 
- 	
-	TittlePage.innerHTML = getCookie("TitleText")  //Libelle=element du menu de gauche
+
+    TittlePage.innerHTML = getCookie("TitleText")  //Libelle=element du menu de gauche
 
     const voltage = document.getElementsByClassName("voltage");
     for (var i = 0; i < voltage.length; i++) {
@@ -430,6 +445,13 @@ const sidebar = document.querySelector(".sidebar");
 
   }
 
+  var sensorin = getCookie("sensor");
+  sensorin = JSON.parse(sensorin);
+
+  for (var i = 0; i < sensorin.length; i++) {
+    var r = sensorin[i];
+    updateDiscovery(r.topic, r.info);
+  }
 
 
 
@@ -499,7 +521,7 @@ function since() {
 
 }
 
-function updateSensorReadings(topic,jsonResponse,copyhive) {
+function updateSensorReadings(topic, jsonResponse, copyhive) {
   console.log(typeof jsonResponse);
   console.log(jsonResponse);
 
@@ -517,11 +539,11 @@ function updateSensorReadings(topic,jsonResponse,copyhive) {
     //var val = Object.values(jsonResponse);
     //let battery = Number(val[5] ).toFixed(2);
     let battery = Number(jsonResponse.Charge).toFixed(2);
-	let rssi = Number(jsonResponse.rssi).toFixed(2);
+    let rssi = Number(jsonResponse.rssi).toFixed(2);
 
 
-    updateBoxes(temperature, voltage, battery, voltage , rssi); //use volatge comm humidi
- 
+    updateBoxes(temperature, voltage, battery, voltage, rssi); //use volatge comm humidi
+
   }
 
   if (jsonResponse.Date !== undefined)     // cas dernier message update chart
@@ -562,19 +584,18 @@ function updateSensorReadings(topic,jsonResponse,copyhive) {
     burstupdateCharts(jsonResponse.Date, jsonResponse.Vbatt, undefined, undefined, humidityHistoryDiv);
 
 
-	if (copyhive==true)
-		{
-		const messageResponse = JSON.stringify(jsonResponse);
-		initializeMQTTConnection_Hive("wss://811bda171b64435d9323de3dac2d9bbf.s1.eu.hivemq.cloud:8884/mqtt", );
-  
-		mqttService_Hive.publish(topic,messageResponse,{retain:true, expiryInterval: 0})
-		}
-	 
-	 
+    if (copyhive == true) {
+      const messageResponse = JSON.stringify(jsonResponse);
+      initializeMQTTConnection_Hive(SERVER_HIVE,);
 
-	  processMqttMessage(topic,jsonResponse);
-	console.log("historyData:",historyData);
-	 
+      mqttService_Hive.publish(topic, messageResponse, { retain: true, expiryInterval: 0 })
+    }
+
+
+
+    processMqttMessage(topic, jsonResponse);
+    console.log("historyData:", historyData);
+
     // xArray.push(ctr++);
     // xArray.push(ctr++);
 
@@ -651,7 +672,7 @@ function updateMiniMaxi(mini, maxi) {
 }
 
 
-function updateBoxes(temperature, voltage, battery, humidity,rssi) {
+function updateBoxes(temperature, voltage, battery, humidity, rssi) {
   let temperatureDiv = document.getElementById("temperature");
   let voltageDiv = document.getElementById("voltage");
   let batteryDiv = document.getElementById("battery");
@@ -662,10 +683,10 @@ function updateBoxes(temperature, voltage, battery, humidity,rssi) {
   voltageDiv.innerHTML = voltage + " mV";
   batteryDiv.innerHTML = battery + " %";
   humidityDiv.innerHTML = humidity + " %";
-  if (rssi =="NaN")
-	   rssiDiv.innerHTML = "";
+  if (rssi == "NaN")
+    rssiDiv.innerHTML = "";
   else
-    rssiDiv.innerHTML = "Rssi Lora: "+ rssi + "db";
+    rssiDiv.innerHTML = "Rssi Lora: " + rssi + "db";
 }
 
 
@@ -712,7 +733,7 @@ function updateChartsBackground() {
   };
   historyCharts.forEach((chart) => Plotly.relayout(chart, updateHistory));
 
- 
+
 }
 
 const mediaQuery = window.matchMedia("(max-width: 400px)");
@@ -763,26 +784,26 @@ function onConnect(message) {
 
 
 function onMessage_Hive(topic, message) {
-	  var stringResponse = message.toString();
+  var stringResponse = message.toString();
 
-  stringResponse=stringResponse.replace('id:', '"id":');
-  console.log(stringResponse)  
-  
+  stringResponse = stringResponse.replace('id:', '"id":');
+  console.log(stringResponse)
+
   var messageResponse = JSON.parse(stringResponse);
-   if (topic.search("Sensor") !=  -1  )
-	{updateDiscovery(topic,messageResponse);
+  if (topic.search("Sensor") != -1) {
+    updateDiscovery(topic, messageResponse);
 
-	}
-	
-	var SelectedDevice = getCookie("SelectedDevice")
-    let indexElement = ListedeSensor.findIndex(element => element.SelectedDevice === SelectedDevice);
-	if (indexElement != -1)
-		ajouterOuRemplacerElements(ListedeSensor[indexElement])
-	
+  }
 
-	if (messageResponse.hex == undefined && messageResponse.name !== undefined)
- 		updateSensorReadings(topic, messageResponse,0)   // 0 ne pas reposter sur hive
-	
+  var SelectedDevice = getCookie("SelectedDevice")
+  let indexElement = ListedeSensor.findIndex(element => element.SelectedDevice === SelectedDevice);
+  if (indexElement != -1)
+    ajouterOuRemplacerElements(ListedeSensor[indexElement])
+
+
+  if (messageResponse.hex == undefined && messageResponse.name !== undefined)
+    updateSensorReadings(topic, messageResponse, 0)   // 0 ne pas reposter sur hive
+
 
 }
 
@@ -790,25 +811,25 @@ function onMessage_Hive(topic, message) {
 function onMessage(topic, message) {
   var stringResponse = message.toString();
 
-  
-  stringResponse=stringResponse.replace('id:', '"id":');
-  console.log(stringResponse)  
-  
+
+  stringResponse = stringResponse.replace('id:', '"id":');
+  console.log(stringResponse)
+
   var messageResponse = JSON.parse(stringResponse);
 
- if (topic.search("Sensor") !=  -1  )
-	{updateDiscovery(topic,messageResponse);
-	return
-	}
-	
-	
+  if (topic.search("Sensor") != -1) {
+    updateDiscovery(topic, messageResponse);
+    return
+  }
+
+
   if (messageResponse.hex == undefined && messageResponse.name !== undefined)
-    updateSensorReadings(topic,messageResponse,1);
+    updateSensorReadings(topic, messageResponse, 1);
   else {
     console.log("skip:" + topic)
 
   }
-  
+
 
   //b=0
   // mqttService.publish(topic,b)
@@ -842,56 +863,56 @@ function onClose_Hive() {
 
 // Fonction pour ajouter ou remplacer des éléments à partir d'un objet JSON
 function ajouterOuRemplacerElements(objetJson) {
-    // Récupérer la classe mypopup
-    let myPopup = document.getElementById('myPopup');
+  // Récupérer la classe mypopup
+  let myPopup = document.getElementById('myPopup');
 
-    // Parcourir chaque propriété de l'objet JSON
-    for (let prop in objetJson) {
-        if (objetJson.hasOwnProperty(prop)) {
-            // Vérifier si l'élément avec cet ID existe déjà
-            let existingElement = myPopup.querySelector(`#${prop}`);
-            
-            if (existingElement) {
-                // Si l'élément existe, mettre à jour sa valeur
-                existingElement.value = objetJson[prop];
-            } else {
-                // Sinon, créer un nouvel élément
-                let newRow = document.createElement('tr');
+  // Parcourir chaque propriété de l'objet JSON
+  for (let prop in objetJson) {
+    if (objetJson.hasOwnProperty(prop)) {
+      // Vérifier si l'élément avec cet ID existe déjà
+      let existingElement = myPopup.querySelector(`#${prop}`);
 
-                // Créer une cellule pour le nom de la propriété
-                let propertyNameCell = document.createElement('td');
-                propertyNameCell.textContent = prop;
-                newRow.appendChild(propertyNameCell);
+      if (existingElement) {
+        // Si l'élément existe, mettre à jour sa valeur
+        existingElement.value = objetJson[prop];
+      } else {
+        // Sinon, créer un nouvel élément
+        let newRow = document.createElement('tr');
 
-                // Créer une cellule pour la valeur de la propriété
-                let propertyValueCell = document.createElement('td');
-                let inputElement = document.createElement('input');
-                inputElement.id = prop;  // Utilisez le nom de la propriété comme identifiant
-                inputElement.size = 30;
-                inputElement.type = 'text';
-                inputElement.value = objetJson[prop];
-                propertyValueCell.appendChild(inputElement);
-                newRow.appendChild(propertyValueCell);
+        // Créer une cellule pour le nom de la propriété
+        let propertyNameCell = document.createElement('td');
+        propertyNameCell.textContent = prop;
+        newRow.appendChild(propertyNameCell);
 
-                // Ajouter la nouvelle ligne à la table
-                myPopup.querySelector('table').appendChild(newRow);
-            }
-        }
+        // Créer une cellule pour la valeur de la propriété
+        let propertyValueCell = document.createElement('td');
+        let inputElement = document.createElement('input');
+        inputElement.id = prop;  // Utilisez le nom de la propriété comme identifiant
+        inputElement.size = 30;
+        inputElement.type = 'text';
+        inputElement.value = objetJson[prop];
+        propertyValueCell.appendChild(inputElement);
+        newRow.appendChild(propertyValueCell);
+
+        // Ajouter la nouvelle ligne à la table
+        myPopup.querySelector('table').appendChild(newRow);
+      }
     }
+  }
 }
 
 
 
- /**
- * Fonction de mise à jour de la découverte.
- *
- * Cette fonction est utilisée pour gérer la mise à jour des découvertes en fonction des messages reçus via MQTT.
- *
- * @param {string} topic - Le sujet du message MQTT.
- * @param {any} messageResponse - La réponse du message MQTT.
- *
- * @returns {void} Aucun retour, la fonction effectue des opérations de mise à jour sur ListedeSensor et le document HTML.
- */
+/**
+* Fonction de mise à jour de la découverte.
+*
+* Cette fonction est utilisée pour gérer la mise à jour des découvertes en fonction des messages reçus via MQTT.
+*
+* @param {string} topic - Le sujet du message MQTT.
+* @param {any} messageResponse - La réponse du message MQTT.
+*
+* @returns {void} Aucun retour, la fonction effectue des opérations de mise à jour sur ListedeSensor et le document HTML.
+*/
 
 // Fonction de mise à jour de la découverte
 function updateDiscovery(topic, messageResponse) {
@@ -906,6 +927,8 @@ function updateDiscovery(topic, messageResponse) {
 
   // Vérification si le dernier élément n'est pas "Settings"
   if (dernierElement !== "Settings") {
+
+
     // Création d'un nouvel élément avec des propriétés spécifiques
     let nouvelElement = {
       pot: ListedeSensor.length + 1,
@@ -938,9 +961,36 @@ function updateDiscovery(topic, messageResponse) {
       addClicker(ListedeSensor.length);
 
       // Pour obtenir les détails des paramètres
-      initializeMQTTConnection_Hive("wss://811bda171b64435d9323de3dac2d9bbf.s1.eu.hivemq.cloud:8884/mqtt", "home/Sensor/#");
+      initializeMQTTConnection_Hive(SERVER_HIVE, "home/Sensor/#");
     }
   } else {
+    var sensorin = getCookie("sensor");
+    var sensor = { 'topic': topic, 'info': messageResponse };
+
+    // Si le cookie n'est pas défini, initialisez sensorin comme un tableau vide
+    if (!sensorin) {
+      sensorin = [];
+    } else {
+      // Si le cookie est défini, convertissez la chaîne JSON en tableau
+      sensorin = JSON.parse(sensorin);
+    }
+
+    // Vérification si l'élément existe déjà
+    let indexElementCook = sensorin.findIndex(existingSensor => existingSensor.topic === sensor.topic);
+
+    if (indexElementCook !== -1) {
+      // L'élément existe déjà, mettez à jour
+      sensorin[indexElementCook] = sensor;
+      console.log("existe cookies sensor:", sensorin);
+    } else {
+      // L'élément n'existe pas, ajoutez-le
+      sensorin.push(sensor);
+      console.log("set cookies sensor:", sensorin);
+    }
+
+    // Enregistrez le cookie mis à jour
+    setCookie("sensor", JSON.stringify(sensorin));
+
     // Recherche de l'index de l'élément existant dans le tableau
     const indexElementExistant = ListedeSensor.findIndex(element => element.SelectedDevice === avantdernierElement);
 
@@ -961,13 +1011,34 @@ function updateDiscovery(topic, messageResponse) {
         potTextElement.innerText = updateElement.Short_name;
       }
     }
+	
+	else
+		     // Ajout du nouvel élément au tableau si l'élément n'existe pas
+			 {    ListedeSensor.push(updateElement);
+			  console.log("Élément ajouté avec succès !");
+
+			  // Sélection de la barre latérale dans le document HTML
+			  const sidebar = document.querySelector(".sidebar");
+			  // Création d'un lien pour le nouvel élément
+			  const potLink = createPotLink(`pot${ListedeSensor.length}`, updateElement.Short_name);
+
+			  // Ajout du lien à la barre latérale
+			  sidebar.appendChild(potLink);
+
+			  // Ajout d'un "clicker" avec des paramètres spécifiques
+			  addClicker(ListedeSensor.length);
+
+				initializeMQTTConnection_Hive(SERVER_HIVE, "home/Sensor/#");
+			 }
+	
+	
   }
 }
 
 function StartDiscoSensor() {
 
-      initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/" + "OMG_ESP32_LORA" + "/MERGEtoMQTT/Sensor/#" )
-      initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/" + "OMG_ESP32_LORA2" + "/MERGEtoMQTT/Sensor/#" )
+  initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/" + "OMG_ESP32_LORA" + "/MERGEtoMQTT/Sensor/#")
+  initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/" + "OMG_ESP32_LORA2" + "/MERGEtoMQTT/Sensor/#")
 
 }
 
@@ -987,11 +1058,11 @@ function fetchMQTTConnection() {
       var Name_OMG = getCookie("Name_OMG")
       var Has_Battery = getCookie("Has_Battery")
 
-//copyall()
+      //copyall()
 
 
 
- //   initializeMQTTConnection("wss://811bda171b64435d9323de3dac2d9bbf.s1.eu.hivemq.cloud:8884/mqtt", "home/" + "/MERGEtoMQTT/" + "/Sensor/#");
+      //   initializeMQTTConnection("wss://811bda171b64435d9323de3dac2d9bbf.s1.eu.hivemq.cloud:8884/mqtt", "home/" + "/MERGEtoMQTT/" + "/Sensor/#");
 
 
       initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/" + Name_OMG + "/MERGEtoMQTT/" + SelectedDevice + "/LastMessage/#");
@@ -1012,45 +1083,46 @@ function fetchMQTTConnection() {
 
 
 
-function copyall(){
+function copyall() {
 
 
-// Options de connexion pour le destinataire
-const destinationOptions = {
- 
-  username: 'hivemq.webclient.1705178009968',
-  password: '013A2BSDqGCpa&sm,.:r'
-  
-};
+  // Options de connexion pour le destinataire
+  const destinationOptions = {
+
+    username: 'hivemq.webclient.1705178009968',
+    password: '013A2BSDqGCpa&sm,.:r'
+
+  };
 
 
-const sourceMQTT = new MQTTService("wss://broker.emqx.io:8084/mqtt", {});
-const destinationMQTT = new MQTTService("wss://811bda171b64435d9323de3dac2d9bbf.s1.eu.hivemq.cloud:8884/mqtt", {});
+  const sourceMQTT = new MQTTService("wss://broker.emqx.io:8084/mqtt", {});
+  const destinationMQTT = new MQTTService("wss://811bda171b64435d9323de3dac2d9bbf.s1.eu.hivemq.cloud:8884/mqtt", {});
 
-async function copyMessagesAndDisconnect() {
-  try {
-    // Connexion à la source
-    await sourceMQTT.connect();
+  async function copyMessagesAndDisconnect() {
+    try {
+      // Connexion à la source
+      await sourceMQTT.connect();
 
-    // Connexion à la destination
-    await destinationMQTT.connect(destinationOptions);
+      // Connexion à la destination
+      await destinationMQTT.connect(destinationOptions);
 
-    // Copie des messages
-    sourceMQTT.copyAllMessages("home/OMG_ESP32_LORA/MERGEtoMQTT/#", "home/OMG_ESP32_LORA");
+      // Copie des messages
+      sourceMQTT.copyAllMessages("home/OMG_ESP32_LORA/MERGEtoMQTT/#", "home/OMG_ESP32_LORA");
 
-    // Attendre un certain temps ou utiliser d'autres mécanismes pour déterminer que la copie est terminée
+      // Attendre un certain temps ou utiliser d'autres mécanismes pour déterminer que la copie est terminée
 
-    // Déconnexion une fois que tout est terminé
-   // sourceMQTT.disconnect();
-   // destinationMQTT.disconnect();
-  } catch (error) {
-    console.error("Une erreur s'est produite lors de la copie des messages :", error);
+      // Déconnexion une fois que tout est terminé
+      // sourceMQTT.disconnect();
+      // destinationMQTT.disconnect();
+    } catch (error) {
+      console.error("Une erreur s'est produite lors de la copie des messages :", error);
+    }
   }
+
+  // Lancer la copie
+  copyMessagesAndDisconnect();
 }
 
-// Lancer la copie
-copyMessagesAndDisconnect();
-}
 
 
 
@@ -1060,19 +1132,18 @@ copyMessagesAndDisconnect();
 
 
 
-
-var onser=0
+var onser = 0
 function initializeMQTTConnection(mqttServer, mqttTopic) {
   console.log(
     `Initializing connection to :: ${mqttServer}, topic :: ${mqttTopic}`
   );
   var fnCallbacks = { onConnect, onMessage, onError, onClose };
-if (onser==0){
-  mqttService = new MQTTService(mqttServer, fnCallbacks);
+  if (onser == 0) {
+    mqttService = new MQTTService(mqttServer, fnCallbacks);
     mqttService.connect();
 
-  onser=1
-}
+    onser = 1
+  }
 
   mqttService.subscribe(mqttTopic);
 }
@@ -1137,34 +1208,35 @@ async function changefiltre(dir) {
 
   var SelectedDevice = getCookie("SelectedDevice")
   var Name_OMG = getCookie("Name_OMG")
-  
- await mqttService_Hive.disconnect()
- // initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/" + Name_OMG + "/MERGEtoMQTT/" + SelectedDevice + "/Histo/" + filtre + "/#");
 
- initializeMQTTConnection_Hive("wss://811bda171b64435d9323de3dac2d9bbf.s1.eu.hivemq.cloud:8884/mqtt", "home/" + Name_OMG + "/MERGEtoMQTT/" + SelectedDevice + "/Histo/" + filtre + "/#");
+  await mqttService_Hive.disconnect()
+  initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/" + Name_OMG + "/MERGEtoMQTT/" + SelectedDevice + "/Histo/" + filtre + "/#");
 
- 
- 
+
+  initializeMQTTConnection_Hive(SERVER_HIVE, "home/" + Name_OMG + "/MERGEtoMQTT/" + SelectedDevice + "/Histo/" + filtre + "/#");
+
+
+
   idategraph.innerHTML = filtre
 
- 
- 
- // Récupérer l'élément avec l'ID "dategraph"
- idategraph = document.getElementById('dategraph');
-// Récupérer la date actuelle
-let currentDate = new Date();
-// Récupérer la date dans l'élément "dategraph"
-let graphDate = new Date(idategraph.innerHTML);
-// Récupérer l'élément avec l'ID "graphContainer"
-let graphContainer = document.getElementById('graphContainer');
-// Comparer les dates
-if (graphDate > currentDate) {
-  // Si la date dans "dategraph" est après la date actuelle, rendre visible
-  graphContainer.style.display = 'block';
-} else {
-  // Sinon, rendre invisible
-  graphContainer.style.display = 'none';
-}
+
+
+  // Récupérer l'élément avec l'ID "dategraph"
+  idategraph = document.getElementById('dategraph');
+  // Récupérer la date actuelle
+  let currentDate = new Date();
+  // Récupérer la date dans l'élément "dategraph"
+  let graphDate = new Date(idategraph.innerHTML);
+  // Récupérer l'élément avec l'ID "graphContainer"
+  let graphContainer = document.getElementById('graphContainer');
+  // Comparer les dates
+  if (graphDate > currentDate) {
+    // Si la date dans "dategraph" est après la date actuelle, rendre visible
+    graphContainer.style.display = 'block';
+  } else {
+    // Sinon, rendre invisible
+    graphContainer.style.display = 'none';
+  }
 
 
 }
@@ -1200,7 +1272,7 @@ function processMqttMessage(topic, messageResponse) {
   // Stocker historyData dans les cookies
   setCookie('historyData', JSON.stringify(historyData));
 
-	updatehistojour(historyData , "Yaourt1")
+  updatehistojour(historyData, "Yaourt1")
 
 
   return historyData;
@@ -1250,8 +1322,8 @@ function generateValues() {
 }
 
 function createFixedGradientColors(values) {
-	values=generateValues()
-	
+  values = generateValues()
+
   return values.map(value => {
     const normalizedValue = (value + 50) / 100; // Normaliser la valeur entre 0 et 1
     const red = Math.round(255 * normalizedValue);
@@ -1272,23 +1344,23 @@ function updatehistojour(data, item) {
   const diffValues = tmaxValues.map((max, index) => max - tminValues[index]);
 
 
-// Créer le graphique
-const trace = {
-  x: dates,
-  y: diffValues,
-  base: tminValues,
-  type: 'bar',
-  text: dates.map((date, index) => `Date: ${date}<br>Min: ${tminValues[index]}<br>Max: ${tmaxValues[index]}<br>Diff: ${diffValues[index]}`),
-  hoverinfo: 'text+y'
- 
+  // Créer le graphique
+  const trace = {
+    x: dates,
+    y: diffValues,
+    base: tminValues,
+    type: 'bar',
+    text: dates.map((date, index) => `Date: ${date}<br>Min: ${tminValues[index]}<br>Max: ${tmaxValues[index]}<br>Diff: ${diffValues[index]}`),
+    hoverinfo: 'text+y'
 
-};
+
+  };
 
   const layout = {
     title: 'Min/Max',
     width: 350,
     autosize: true,
- 
+
     margin: { t: 40, b: 120, l: 40, r: 10, pad: 0 },
     plot_bgcolor: chartBGColor,
     paper_bgcolor: chartBGColor,
