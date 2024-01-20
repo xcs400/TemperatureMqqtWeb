@@ -74,21 +74,21 @@ function getCookie(cName) {
 
 
 function addClicker(idfromcreat) {
-  const pot = document.getElementById("pot" + idfromcreat);
-  const clickedElement = ListedeSensor.find(element => element.pot === idfromcreat);
+  const pot = document.getElementById("pot_" + idfromcreat);
+  const clickedElement = ListedeSensor.find(element => element.SelectedDevice === idfromcreat);
 
 
   pot.addEventListener("click", (event) => {
     var clickedId = event.currentTarget.id;
 
     console.log(clickedId);
-    clickedId = parseInt(clickedId.replace("pot", ""))
+    clickedId = clickedId.replace("pot_", "")
 
     // Vérifier si clickedId est égal à -1, utiliser idfromcreat à la place
-    const actualClickedId = clickedId === '-1' ? idfromcreat : clickedId;
+ //   const actualClickedId = clickedId === '-1' ? idfromcreat : clickedId;
 
     // Trouver l'élément dans ListedeSensor qui correspond à actualClickedId
-    const clickedElement = ListedeSensor.find(element => element.pot == actualClickedId);
+    const clickedElement = ListedeSensor.find(element => element.SelectedDevice == clickedId);
     // Vérifier si l'élément a été trouvé
     if (clickedElement) {
       // Utiliser les propriétés de l'élément trouvé
@@ -108,7 +108,7 @@ function addClicker(idfromcreat) {
 
   // Assurez-vous d'accéder à l'élément avec le bon ID
   if (clickedElement != undefined)
-    document.getElementById(`${'pot' + idfromcreat}-text`).innerText = clickedElement.Short_name;
+    document.getElementById(`${'pot_' + idfromcreat}-text`).innerText = clickedElement.Short_name;
 }
 
 
@@ -953,13 +953,13 @@ function updateDiscovery(topic, messageResponse) {
       // Sélection de la barre latérale dans le document HTML
       const sidebar = document.querySelector(".sidebar");
       // Création d'un lien pour le nouvel élément
-      const potLink = createPotLink(`pot${ListedeSensor.length}`, dernierElement);
+      const potLink = createPotLink(`pot_${nouvelElement.SelectedDevice}`, nouvelElement.SelectedDevice);
 
       // Ajout du lien à la barre latérale
       sidebar.appendChild(potLink);
 
       // Ajout d'un "clicker" avec des paramètres spécifiques
-      addClicker(ListedeSensor.length);
+      addClicker(nouvelElement.SelectedDevice);
 
       // Pour obtenir les détails des paramètres
       initializeMQTTConnection_Hive(SERVER_HIVE, "home/Sensor/#");
@@ -1004,10 +1004,10 @@ function updateDiscovery(topic, messageResponse) {
       ListedeSensor[indexElementExistant] = updateElement;
 
       // Appel de la fonction addClicker avec la position mise à jour
-      addClicker(indexElementExistant + 1);
+      addClicker(updateElement.SelectedDevice);
 
       // Mettre à jour le texte de l'élément HTML correspondant
-      const potTextElement = document.getElementById(`pot${indexElementExistant + 1}-text`);
+      const potTextElement = document.getElementById(`pot$_{ListedeSensor[indexElementExistant].SelectedDevice + 1}-text`);
       if (potTextElement) {
         potTextElement.innerText = updateElement.Short_name;
       }
@@ -1021,13 +1021,13 @@ function updateDiscovery(topic, messageResponse) {
 			  // Sélection de la barre latérale dans le document HTML
 			  const sidebar = document.querySelector(".sidebar");
 			  // Création d'un lien pour le nouvel élément
-			  const potLink = createPotLink(`pot${ListedeSensor.length}`, updateElement.Short_name);
+			  const potLink = createPotLink(`pot_${updateElement.SelectedDevice}`, updateElement.Short_name);
 
 			  // Ajout du lien à la barre latérale
 			  sidebar.appendChild(potLink);
 
 			  // Ajout d'un "clicker" avec des paramètres spécifiques
-			  addClicker(ListedeSensor.length);
+			  addClicker(updateElement.SelectedDevice);
 
 				initializeMQTTConnection_Hive(SERVER_HIVE, "home/Sensor/#");
 			 }
