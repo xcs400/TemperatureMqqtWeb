@@ -38,7 +38,7 @@ const options_hive = {
   password: '013A2BSDqGCpa&sm,.:r'
 };
 
-let SERVER_HIVE = "ws://f9aa77ab.emqx.cloud:8083/mqtt"
+let SERVER_HIVE = "wws://f9aa77ab.emqx.cloud:8084/mqtt"
 
 
 
