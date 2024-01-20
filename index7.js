@@ -21,7 +21,7 @@ let historyData = {};
 var SelectedDevice = "?"
 
 // Déclaration d'un tableau vide pour stocker les capteurs
-/*let ListedeSensor = [];
+let ListedeSensor = [];
 
   const options_hive = {
   username: 'hivemq.webclient.1705178009968',
@@ -29,8 +29,9 @@ var SelectedDevice = "?"
  };  
 
 let SERVER_HIVE = "wss://811bda171b64435d9323de3dac2d9bbf.s1.eu.hivemq.cloud:8884/mqtt"
-*/
 
+
+/*
 let ListedeSensor = [];
 
 const options_hive = {
@@ -38,8 +39,8 @@ const options_hive = {
   password: '013A2BSDqGCpa&sm,.:r'
 };
 
-let SERVER_HIVE = "ws://f9aa77ab.emqx.cloud:8083/mqtt"
-
+let SERVER_HIVE = "wss://f9aa77ab.emqx.cloud:8084/mqtt"
+*/
 
 
 
