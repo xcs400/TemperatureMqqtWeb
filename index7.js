@@ -446,13 +446,13 @@ window.addEventListener("load", (event) => {
 
   }
 
-  var sensorin = getCookie("sensor");
-  sensorin = JSON.parse(sensorin);
+ // var sensorin = getCookie("sensor");
+ // sensorin = JSON.parse(sensorin);
 
-  for (var i = 0; i < sensorin.length; i++) {
-    var r = sensorin[i];
-    updateDiscovery(r.topic, r.info);
-  }
+ // for (var i = 0; i < sensorin.length; i++) {
+ //   var r = sensorin[i];
+ //   updateDiscovery(r.topic, r.info);
+ // }
 
 
 
@@ -917,6 +917,8 @@ function ajouterOuRemplacerElements(objetJson) {
 
 // Fonction de mise à jour de la découverte
 
+
+
 function updateDiscovery(topic, messageResponse) {
   console.log("updateDiscovery;", topic, messageResponse);
 
@@ -924,7 +926,109 @@ function updateDiscovery(topic, messageResponse) {
   const dernierElement = tableauElements[tableauElements.length - 1];
   const avantdernierElement = tableauElements[tableauElements.length - 2];
 
-  if (dernierElement !== "Settings") {
+  if (dernierElement !== "Settings" )
+  {
+    let nouvelElement = {
+      pot: ListedeSensor.length + 1,
+      SelectedDevice: dernierElement,
+      Name_OMG: tableauElements[1],
+      Short_name: dernierElement,
+      TitleText: dernierElement,
+	  Has_Battery:"0",
+	  Has_Humidity:"0"
+	 };
+
+    let indexElementExistant = ListedeSensor.findIndex(element => element.SelectedDevice === nouvelElement.SelectedDevice);
+
+    if (indexElementExistant !== -1) {
+      console.log("existe deja !");
+    } else {
+      ListedeSensor.push(nouvelElement);
+      console.log("Élément ajouté avec succès !");
+
+      const sidebar = document.querySelector(".sidebar");
+      const potLink = createPotLink(`pot_${nouvelElement.SelectedDevice}`, nouvelElement.SelectedDevice);
+      sidebar.appendChild(potLink);
+
+      addClicker(nouvelElement.SelectedDevice);
+
+      initializeMQTTConnection_Hive(SERVER_HIVE, "home/Sensor/#");
+    }
+  } 
+  
+  
+  else {
+	  
+var cookieValue = getCookie("sensor");
+var sensorin;
+
+if (cookieValue) {
+  sensorin = JSON.parse(cookieValue);
+} else {
+  console.error("Le cookie 'sensor' n'existe pas.");
+  // Ou effectuer une autre action en conséquence, par exemple initialiser sensorin à une valeur par défaut.
+  sensorin = [];
+}
+
+
+	
+    let sensor = { 'topic': topic, 'info': messageResponse };
+    let indexElementCook = sensorin.findIndex(existingSensor => existingSensor.topic === sensor.topic);
+
+    if (indexElementCook !== -1) {
+      sensorin[indexElementCook] = sensor;
+      console.log("existe cookies sensor:", sensorin);
+    } else {
+      sensorin.push(sensor);
+      console.log("set cookies sensor:", sensorin);
+    }
+
+    setCookie("sensor", JSON.stringify(sensorin));
+
+    const indexElementExistant = ListedeSensor.findIndex(element => element.SelectedDevice === avantdernierElement);
+    const updateElement = messageResponse;
+
+    if (indexElementExistant !== -1) {
+      ListedeSensor[indexElementExistant] = updateElement;
+      addClicker(updateElement.SelectedDevice);
+
+      const potTextElement = document.getElementById(`pot$_{ListedeSensor[indexElementExistant].SelectedDevice + 1}-text`);
+      if (potTextElement) {
+        potTextElement.innerText = updateElement.Short_name;
+      }
+    } else {
+      ListedeSensor.push(updateElement);
+      console.log("Élément ajouté avec succès !");
+
+      const sidebar = document.querySelector(".sidebar");
+      const potLink = createPotLink(`pot_${updateElement.SelectedDevice}`, updateElement.Short_name);
+      sidebar.appendChild(potLink);
+
+      addClicker(updateElement.SelectedDevice);
+
+      initializeMQTTConnection_Hive(SERVER_HIVE, "home/Sensor/#");
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+function updateDiscoveryold1(topic, messageResponse) {
+  console.log("updateDiscovery;", topic, messageResponse);
+
+  const tableauElements = topic.split('/');
+  const dernierElement = tableauElements[tableauElements.length - 1];
+  const avantdernierElement = tableauElements[tableauElements.length - 2];
+
+  if (dernierElement !== "Settings" )
+  {
     let nouvelElement = {
       pot: ListedeSensor.length + 1,
       SelectedDevice: dernierElement,
@@ -962,7 +1066,26 @@ if (cookieValue) {
   sensorin = [];
 }
 
+//      document.cookie = `SelectedDevice=${clickedElement.SelectedDevice}`;
+//      document.cookie = `TitleText=${clickedElement.TitleText}`;
+//      document.cookie = `Name_OMG=${clickedElement.Name_OMG}`;
+//      document.cookie = `Has_Battery=${clickedElement.Has_Battery}`;
+//      document.cookie = `Has_Humidity=${clickedElement.Has_Humidity}`;
+//      document.cookie = `Short_name=${clickedElement.Short_name}`;
 
+	if (messageResponse.TitleText ==undefined )
+	{
+		
+		
+		messageResponse.TitleText=avantdernierElement;
+	messageResponse.Name_OMG="inconn";
+	messageResponse.Has_Battery="0";
+	messageResponse.Has_Humidity="0";
+	messageResponse.Short_name=avantdernierElement;
+		  
+	  
+	}
+		
     let sensor = { 'topic': topic, 'info': messageResponse };
     let indexElementCook = sensorin.findIndex(existingSensor => existingSensor.topic === sensor.topic);
 
