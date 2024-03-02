@@ -648,7 +648,7 @@ main .histories h2 {
 }
 
 
-
+.connection-status .status_Hive,
 .connection-status .status {
   color: var(--color-primary);
 }

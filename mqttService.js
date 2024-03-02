@@ -21,6 +21,7 @@ export class MQTTService {
 
       this.mqttClient.on('connect', () => {
         console.log(`MQTT client connected`);
+		 this.handleCallback('onConnect');
         resolve(); // Resolve the promise once connected
       });
 

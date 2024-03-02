@@ -11,6 +11,8 @@ const themeToggler = document.querySelector(".theme-toggler");
 const TittlePage = document.getElementById("TittlePage");
 
 const OKmyPopupvalue = document.getElementById("OKmyPopupvalue");
+const ResetMQTT = document.getElementById("ResetMQTT");
+
 
 const popuptext = document.getElementsByClassName("popuptext");
 
@@ -112,8 +114,20 @@ function addClicker(idfromcreat) {
 }
 
 
+ResetMQTT.addEventListener("click", () => {
+	
+	var topic = "home/OMG_ESP32_LORA/commands/MQTTtoSYS/config"
+	var textit='{"cmd":"restart"}'
+	 
+mqttService.publish(topic, textit, { retain: false, expiryInterval: 0 });
+
+	var topic = "home/OMG_ESP32_LORA2/commands/MQTTtoSYS/config"
+	var textit='{"cmd":"restart"}'
+	 
+mqttService.publish(topic, textit, { retain: false, expiryInterval: 0 });
 
 
+})
 /*
     MQTT Settings Update Function
 
@@ -402,7 +416,7 @@ window.addEventListener("load", (event) => {
   if (SelectedDevice == undefined) {
     document.cookie = "SelectedDevice = Yaourt1"         // object
     document.cookie = "Name_OMG= OMG_ESP32_LORA"
-    document.cookie = "TitleText = Temperature exterieure sur batterie"
+    document.cookie = "TitleText = Selectionner par le menu"
     document.cookie = "Has_Battery= 1"
     document.cookie = "Has_Humidity= 1"
 
@@ -780,7 +794,7 @@ function onConnect_Hive(message) {
   mqttStatus_Hive.textContent = "Connected to hive broker";
 }
 function onConnect(message) {
-  mqttStatus.textContent = "Connected to broker";
+  mqttStatus.textContent = "Connected to emqx broker";
 }
 
 
