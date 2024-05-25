@@ -802,6 +802,7 @@ function onMessage_Hive(topic, message) {
   var stringResponse = message.toString();
 
   stringResponse = stringResponse.replace('id:', '"id":');
+  stringResponse = stringResponse.replace('visiblename:', '"visiblename":');
   console.log(stringResponse)
 
   var messageResponse = JSON.parse(stringResponse);
@@ -828,6 +829,7 @@ function onMessage(topic, message) {
 
 
   stringResponse = stringResponse.replace('id:', '"id":');
+  stringResponse = stringResponse.replace('visiblename:', '"visiblename":');
   console.log(stringResponse)
 
   var messageResponse = JSON.parse(stringResponse);
@@ -946,8 +948,8 @@ function updateDiscovery(topic, messageResponse) {
       pot: ListedeSensor.length + 1,
       SelectedDevice: dernierElement,
       Name_OMG: tableauElements[1],
-      Short_name: dernierElement,
-      TitleText: dernierElement,
+      Short_name: messageResponse.visiblename,
+      TitleText: messageResponse.visiblename,
 	  Has_Battery:"0",
 	  Has_Humidity:"0"
 	 };
