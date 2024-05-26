@@ -79,6 +79,8 @@ function addClicker(idfromcreat) {
   const pot = document.getElementById("pot_" + idfromcreat);
   const clickedElement = ListedeSensor.find(element => element.SelectedDevice === idfromcreat);
 
+if  ( idfromcreat==undefined)
+	return;
 
   pot.addEventListener("click", (event) => {
     var clickedId = event.currentTarget.id;
@@ -530,7 +532,7 @@ function since() {
   var tmp = (date1 - date2) / 1000
   if (tmp > 3600)
     tmp = tmp - 3600
-  console.log(mqttupdated.textContent, time, tmp)
+ // console.log(mqttupdated.textContent, time, tmp)
   mqttupdatedsec.textContent = tmp
   setTimeout(since, 1000);
 
@@ -800,6 +802,9 @@ function onConnect(message) {
 
 function onMessage_Hive(topic, message) {
   var stringResponse = message.toString();
+
+if  ( stringResponse=="{}")
+		return;
 
   stringResponse = stringResponse.replace('id:', '"id":');
   stringResponse = stringResponse.replace('visiblename:', '"visiblename":');
