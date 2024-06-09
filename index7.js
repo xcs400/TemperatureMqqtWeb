@@ -629,13 +629,20 @@ function updateSensorReadings(topic, jsonResponse, copyhive) {
 	       let idategraph = document.getElementById('dategraph');
 	 if (  jsonResponse.timestamp.includes(idategraph.innerHTML)   )
 	 {
-	 if (jsonResponse.gpio="LOW")
-	 {
-	  addToTerminal(jsonResponse.timestamp+" "+jsonResponse.risingEdgeCount )
-		hideElementsByClass("insights")
-		hideElementsByClass("history-charts")
-	document.getElementById(`Lasttriger`).innerText = "Dernier appuyer a :" +jsonResponse.timestamp + " compteur: "+jsonResponse.risingEdgeCount;
-	 }
+	if (jsonResponse.gpio="LOW")
+		 {
+		const timestampParts = jsonResponse.timestamp.split(' ');
+
+        // Vérifier qu'il y a au moins trois champs
+    
+            const secondField = timestampParts[1];
+  //          secondField = secondField.replace(document.getElementById('idategraph').innerHTML, "");
+
+		  addToTerminal(secondField+" "+jsonResponse.risingEdgeCount )
+			hideElementsByClass("insights")
+			hideElementsByClass("history-charts")
+		document.getElementById(`Lasttriger`).innerText = "Dernier appuis a :" +jsonResponse.timestamp + " compteur: "+jsonResponse.risingEdgeCount;
+		 }
 	 }
  }
  
@@ -660,7 +667,7 @@ function updateSensorReadings(topic, jsonResponse, copyhive) {
     // Add your new content to the terminal here
     // For demonstration purposes, I'm just appending a timestamp
     var timestamp = new Date().toLocaleTimeString();
-    terminal.innerHTML += '<p>' + timestamp + ': ' + text + '</p>';
+    terminal.innerHTML += '<p>' +  text + '</p>';
     isNewContentAdded = true;
 
     // Scroll to the bottom if new content is added
