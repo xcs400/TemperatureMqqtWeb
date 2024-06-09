@@ -623,9 +623,54 @@ function updateSensorReadings(topic, jsonResponse, copyhive) {
 
   }
 
+
+ if (jsonResponse.donotmerge !== undefined)     // cas dernier message update gauge
+ {
+	       let idategraph = document.getElementById('dategraph');
+	 if (  jsonResponse.timestamp.includes(idategraph.innerHTML)   )
+	 {
+	 if (jsonResponse.gpio="LOW")
+	 {
+	  addToTerminal(jsonResponse.timestamp+" "+jsonResponse.risingEdgeCount )
+		hideElementsByClass("insights")
+		hideElementsByClass("history-charts")
+	document.getElementById(`Lasttriger`).innerText = "Dernier appuyer a :" +jsonResponse.timestamp + " compteur: "+jsonResponse.risingEdgeCount;
+	 }
+	 }
+ }
+ 
 }
 
+        function hideElementsByClass(className) {
+            // Sélectionner tous les éléments ayant la classe spécifiée
+            var elements = document.querySelectorAll('.' + className);
+            
+            // Parcourir chaque élément et masquer son affichage
+            elements.forEach(function(element) {
+                element.style.display = 'none';
+            });
+        }
 
+
+
+ function addToTerminal(text) {
+    var terminal = document.getElementById('terminal');
+    var isNewContentAdded = false;
+
+    // Add your new content to the terminal here
+    // For demonstration purposes, I'm just appending a timestamp
+    var timestamp = new Date().toLocaleTimeString();
+    terminal.innerHTML += '<p>' + timestamp + ': ' + text + '</p>';
+    isNewContentAdded = true;
+
+    // Scroll to the bottom if new content is added
+    if (isNewContentAdded) {
+      terminal.scrollTop = terminal.scrollHeight;
+    }
+  }
+  
+  
+  
 function burstupdateCharts(jdate, jvalue, jtmin, jtmax, grapf) {
 
   if (jvalue == undefined)
@@ -802,6 +847,7 @@ function onConnect(message) {
 
 function onMessage_Hive(topic, message) {
   var stringResponse = message.toString();
+ console.log(stringResponse)
 
 if  ( stringResponse=="{}")
 		return;
@@ -835,7 +881,7 @@ function onMessage(topic, message) {
 
   stringResponse = stringResponse.replace('id:', '"id":');
   stringResponse = stringResponse.replace('visiblename:', '"visiblename":');
-  console.log(stringResponse)
+  console.log("recept:",stringResponse)
 
   var messageResponse = JSON.parse(stringResponse);
 
@@ -972,7 +1018,7 @@ function updateDiscovery(topic, messageResponse) {
       sidebar.appendChild(potLink);
 
       addClicker(nouvelElement.SelectedDevice);
-
+console.log("subscrito to  !", SERVER_HIVE,"home/Sensor/#");
       initializeMQTTConnection_Hive(SERVER_HIVE, "home/Sensor/#");
     }
   } 
@@ -1039,239 +1085,9 @@ if (cookieValue) {
 
 
 
-
-
-function updateDiscoveryold1(topic, messageResponse) {
-  console.log("updateDiscovery;", topic, messageResponse);
-
-  const tableauElements = topic.split('/');
-  const dernierElement = tableauElements[tableauElements.length - 1];
-  const avantdernierElement = tableauElements[tableauElements.length - 2];
-
-  if (dernierElement !== "Settings" )
-  {
-    let nouvelElement = {
-      pot: ListedeSensor.length + 1,
-      SelectedDevice: dernierElement,
-      Name_OMG: tableauElements[1],
-      Short_name: dernierElement,
-      TitleText: dernierElement
-    };
-
-    let indexElementExistant = ListedeSensor.findIndex(element => element.SelectedDevice === nouvelElement.SelectedDevice);
-
-    if (indexElementExistant !== -1) {
-      console.log("existe deja !");
-    } else {
-      ListedeSensor.push(nouvelElement);
-      console.log("Élément ajouté avec succès !");
-
-      const sidebar = document.querySelector(".sidebar");
-      const potLink = createPotLink(`pot_${nouvelElement.SelectedDevice}`, nouvelElement.SelectedDevice);
-      sidebar.appendChild(potLink);
-
-      addClicker(nouvelElement.SelectedDevice);
-
-      initializeMQTTConnection_Hive(SERVER_HIVE, "home/Sensor/#");
-    }
-  } else {
-	  
-var cookieValue = getCookie("sensor");
-var sensorin;
-
-if (cookieValue) {
-  sensorin = JSON.parse(cookieValue);
-} else {
-  console.error("Le cookie 'sensor' n'existe pas.");
-  // Ou effectuer une autre action en conséquence, par exemple initialiser sensorin à une valeur par défaut.
-  sensorin = [];
-}
-
-//      document.cookie = `SelectedDevice=${clickedElement.SelectedDevice}`;
-//      document.cookie = `TitleText=${clickedElement.TitleText}`;
-//      document.cookie = `Name_OMG=${clickedElement.Name_OMG}`;
-//      document.cookie = `Has_Battery=${clickedElement.Has_Battery}`;
-//      document.cookie = `Has_Humidity=${clickedElement.Has_Humidity}`;
-//      document.cookie = `Short_name=${clickedElement.Short_name}`;
-
-	if (messageResponse.TitleText ==undefined )
-	{
-		
-		
-		messageResponse.TitleText=avantdernierElement;
-	messageResponse.Name_OMG="inconn";
-	messageResponse.Has_Battery="0";
-	messageResponse.Has_Humidity="0";
-	messageResponse.Short_name=avantdernierElement;
-		  
-	  
-	}
-		
-    let sensor = { 'topic': topic, 'info': messageResponse };
-    let indexElementCook = sensorin.findIndex(existingSensor => existingSensor.topic === sensor.topic);
-
-    if (indexElementCook !== -1) {
-      sensorin[indexElementCook] = sensor;
-      console.log("existe cookies sensor:", sensorin);
-    } else {
-      sensorin.push(sensor);
-      console.log("set cookies sensor:", sensorin);
-    }
-
-    setCookie("sensor", JSON.stringify(sensorin));
-
-    const indexElementExistant = ListedeSensor.findIndex(element => element.SelectedDevice === avantdernierElement);
-    const updateElement = messageResponse;
-
-    if (indexElementExistant !== -1) {
-      ListedeSensor[indexElementExistant] = updateElement;
-      addClicker(updateElement.SelectedDevice);
-
-      const potTextElement = document.getElementById(`pot$_{ListedeSensor[indexElementExistant].SelectedDevice + 1}-text`);
-      if (potTextElement) {
-        potTextElement.innerText = updateElement.Short_name;
-      }
-    } else {
-      ListedeSensor.push(updateElement);
-      console.log("Élément ajouté avec succès !");
-
-      const sidebar = document.querySelector(".sidebar");
-      const potLink = createPotLink(`pot_${updateElement.SelectedDevice}`, updateElement.Short_name);
-      sidebar.appendChild(potLink);
-
-      addClicker(updateElement.SelectedDevice);
-
-      initializeMQTTConnection_Hive(SERVER_HIVE, "home/Sensor/#");
-    }
-  }
-}
-
-
-
-
-function updateDiscoveryold(topic, messageResponse) {
-  // Affichage dans la console du sujet (topic) et de la réponse (messageResponse)
-  console.log("updateDiscovery;", topic, messageResponse);
-
-  // Séparation du sujet en éléments à l'aide du délimiteur '/'
-  const tableauElements = topic.split('/');
-  // Récupération du dernier élément du tableau
-  const dernierElement = tableauElements[tableauElements.length - 1];
-  const avantdernierElement = tableauElements[tableauElements.length - 2];
-
-  // Vérification si le dernier élément n'est pas "Settings"
-  if (dernierElement !== "Settings") {
-
-
-    // Création d'un nouvel élément avec des propriétés spécifiques
-    let nouvelElement = {
-      pot: ListedeSensor.length + 1,
-      SelectedDevice: dernierElement,
-      Name_OMG: tableauElements[1],
-      Short_name: dernierElement,
-      TitleText: dernierElement
-    };
-
-    // Recherche de l'index de l'élément existant dans le tableau
-    let indexElementExistant = ListedeSensor.findIndex(element => element.SelectedDevice === nouvelElement.SelectedDevice);
-
-    // Vérification si l'élément existe déjà
-    if (indexElementExistant !== -1) {
-      console.log("existe deja !");
-    } else {
-      // Ajout du nouvel élément au tableau si l'élément n'existe pas
-      ListedeSensor.push(nouvelElement);
-      console.log("Élément ajouté avec succès !");
-
-      // Sélection de la barre latérale dans le document HTML
-      const sidebar = document.querySelector(".sidebar");
-      // Création d'un lien pour le nouvel élément
-      const potLink = createPotLink(`pot_${nouvelElement.SelectedDevice}`, nouvelElement.SelectedDevice);
-
-      // Ajout du lien à la barre latérale
-      sidebar.appendChild(potLink);
-
-      // Ajout d'un "clicker" avec des paramètres spécifiques
-      addClicker(nouvelElement.SelectedDevice);
-
-      // Pour obtenir les détails des paramètres
-      initializeMQTTConnection_Hive(SERVER_HIVE, "home/Sensor/#");
-    }
-  } else {
-    var sensorin = getCookie("sensor");
-    var sensor = { 'topic': topic, 'info': messageResponse };
-
-    // Si le cookie n'est pas défini, initialisez sensorin comme un tableau vide
-    if (!sensorin) {
-      sensorin = [];
-    } else {
-      // Si le cookie est défini, convertissez la chaîne JSON en tableau
-      sensorin = JSON.parse(sensorin);
-    }
-
-    // Vérification si l'élément existe déjà
-    let indexElementCook = sensorin.findIndex(existingSensor => existingSensor.topic === sensor.topic);
-
-    if (indexElementCook !== -1) {
-      // L'élément existe déjà, mettez à jour
-      sensorin[indexElementCook] = sensor;
-      console.log("existe cookies sensor:", sensorin);
-    } else {
-      // L'élément n'existe pas, ajoutez-le
-      sensorin.push(sensor);
-      console.log("set cookies sensor:", sensorin);
-    }
-
-    // Enregistrez le cookie mis à jour
-    setCookie("sensor", JSON.stringify(sensorin));
-
-    // Recherche de l'index de l'élément existant dans le tableau
-    const indexElementExistant = ListedeSensor.findIndex(element => element.SelectedDevice === avantdernierElement);
-
-    // Décoder la chaîne JSON en un objet JavaScript
-    const updateElement = messageResponse;
-
-    // Vérification si l'élément existe déjà
-    if (indexElementExistant !== -1) {
-      // Mise à jour de l'élément existant avec l'élément mis à jour
-      ListedeSensor[indexElementExistant] = updateElement;
-
-      // Appel de la fonction addClicker avec la position mise à jour
-      addClicker(updateElement.SelectedDevice);
-
-      // Mettre à jour le texte de l'élément HTML correspondant
-      const potTextElement = document.getElementById(`pot$_{ListedeSensor[indexElementExistant].SelectedDevice + 1}-text`);
-      if (potTextElement) {
-        potTextElement.innerText = updateElement.Short_name;
-      }
-    }
-	
-	else
-		     // Ajout du nouvel élément au tableau si l'élément n'existe pas
-			 {    ListedeSensor.push(updateElement);
-			  console.log("Élément ajouté avec succès !");
-
-			  // Sélection de la barre latérale dans le document HTML
-			  const sidebar = document.querySelector(".sidebar");
-			  // Création d'un lien pour le nouvel élément
-			  const potLink = createPotLink(`pot_${updateElement.SelectedDevice}`, updateElement.Short_name);
-
-			  // Ajout du lien à la barre latérale
-			  sidebar.appendChild(potLink);
-
-			  // Ajout d'un "clicker" avec des paramètres spécifiques
-			  addClicker(updateElement.SelectedDevice);
-
-				initializeMQTTConnection_Hive(SERVER_HIVE, "home/Sensor/#");
-			 }
-	
-	
-  }
-}
-
 function StartDiscoSensor() {
 
-  initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/" + "OMG_ESP32_LORA" + "/MERGEtoMQTT/Sensor/#")
+ // initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/" + "OMG_ESP32_LORA" + "/MERGEtoMQTT/Sensor/#")
  
   
   
@@ -1301,7 +1117,8 @@ function fetchMQTTConnection() {
 
 
       //   initializeMQTTConnection("wss://811bda171b64435d9323de3dac2d9bbf.s1.eu.hivemq.cloud:8884/mqtt", "home/" + "/MERGEtoMQTT/" + "/Sensor/#");
-
+console.log("myinitializeMQTTConnection", "home/" , Name_OMG , "GPIOInputChat", SelectedDevice , "/History/#")
+     initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/" + Name_OMG + "/GPIOInputChat/"+ SelectedDevice + "/History/#");
 
       initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/" + Name_OMG + "/MERGEtoMQTT/" + SelectedDevice + "/LastMessage/#");
 
