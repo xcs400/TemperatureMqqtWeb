@@ -15,10 +15,12 @@ const ResetMQTT = document.getElementById("ResetMQTT");
 
 
 const popuptext = document.getElementsByClassName("popuptext");
-
+let termid=0
+let chcroc=""
 // Exemple d'utilisation
 let historyData = {};
-
+let lasttime="00:00:00"
+let countappuis=0 
 
 var SelectedDevice = "?"
 
@@ -626,27 +628,123 @@ function updateSensorReadings(topic, jsonResponse, copyhive) {
 
  if (jsonResponse.donotmerge !== undefined)     // cas dernier message update gauge
  {
-	       let idategraph = document.getElementById('dategraph');
+	 
+	 let idategraph = document.getElementById('dategraph');
 	 if (  jsonResponse.timestamp.includes(idategraph.innerHTML)   )
 	 {
-	if (jsonResponse.gpio="LOW")
-		 {
-		const timestampParts = jsonResponse.timestamp.split(' ');
+		if (jsonResponse.gpio="LOW")
+			 {
 
-        // Vérifier qu'il y a au moins trois champs
-    
-            const secondField = timestampParts[1];
-  //          secondField = secondField.replace(document.getElementById('idategraph').innerHTML, "");
+			const timestampParts = jsonResponse.timestamp.split(' ');
 
-		  addToTerminal(secondField+" "+jsonResponse.risingEdgeCount )
-			hideElementsByClass("insights")
-			hideElementsByClass("history-charts")
-		document.getElementById(`Lasttriger`).innerText = "Dernier appuis a :" +jsonResponse.timestamp + " compteur: "+jsonResponse.risingEdgeCount;
+			// Vérifier qu'il y a au moins trois champs
+		
+				const secondField = timestampParts[1];
+	  //          secondField = secondField.replace(document.getElementById('idategraph').innerHTML, "");
+
+			//  addToTerminal(secondField+" "+jsonResponse.risingEdgeCount )
+				hideElementsByClass("insights")
+				hideElementsByClass("history-charts")
+				hideElementsByClass("update-section")
+				
+			
+		const time1 = lasttime
+        const time2 = secondField;
+        const result = subtractTimes(time2, time1);
+		lasttime=secondField
+		console.log("eee", result)
+		countappuis++
+		
+		if (result>40)
+			termid++;
+						 
+						 
+			if (termid&1)
+				var color="#cccccc"
+			else
+				var color="#cc80cc"	
+			
+	//		ajoutTerm("terminal"+termid, color,secondField+" "+jsonResponse.risingEdgeCount ) 
+			let pr=toTimeStringsimple(result)
+	
+	
+			ajoutTerm("terminal"+termid, color,secondField+"  &nbsp &nbsp &nbsp  +"+pr +"" ) 
+			 
 		 }
+		 
+		 document.getElementById(`Lasttriger`).innerText = "Dernier appui a :" +jsonResponse.timestamp + " cycles: "+termid+ " totaljour:"  +countappuis ;
+
 	 }
- }
  
+	}
 }
+
+   function toTimeStringsimple(totalSeconds) {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            let result = '';
+
+            // Ajouter les heures si elles ne sont pas égales à 0
+            if (hours > 0) {
+                result += `${hours}H `;
+            }
+
+            // Ajouter les minutes si elles ne sont pas égales à 0
+            if (minutes > 0) {
+                result += `${minutes}Min `;
+            }
+
+            // Toujours ajouter les secondes
+            result += `${seconds}Sec`;
+
+            return result.trim();
+        }
+
+
+
+       function parseTime(timeStr) {
+            const parts = timeStr.split(':');
+            const hours = parseInt(parts[0], 10);
+            const minutes = parseInt(parts[1], 10);
+            const seconds = parseInt(parts[2], 10);
+            return { hours, minutes, seconds };
+        }
+
+        function toSeconds(time) {
+            return time.hours * 3600 + time.minutes * 60 + time.seconds;
+        }
+
+        function toTimeString(totalSeconds) {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        function subtractTimes(time1, time2) {
+            const t1 = parseTime(time1);
+            const t2 = parseTime(time2);
+
+            const seconds1 = toSeconds(t1);
+            const seconds2 = toSeconds(t2);
+
+            let diffSeconds = seconds1 - seconds2;
+
+            // Handle negative difference by taking the absolute value
+            const isNegative = diffSeconds < 0;
+            if (isNegative) {
+                diffSeconds = Math.abs(diffSeconds);
+            }
+
+      //      const result = toTimeString(diffSeconds);
+        //    return isNegative ? '-' + result : result;
+			return diffSeconds;
+			
+        }
+		
+		
 
         function hideElementsByClass(className) {
             // Sélectionner tous les éléments ayant la classe spécifiée
@@ -659,7 +757,26 @@ function updateSensorReadings(topic, jsonResponse, copyhive) {
         }
 
 
+ function ajoutTerm(id, color,textmes) {
+            // Sélectionnez le conteneur
+            const container = document.getElementById('terminalcontainer');
 
+            // Créez un nouvel élément div
+            const newDiv = document.createElement('div');
+
+            // Définir l'id et le style du nouvel élément
+            newDiv.id = id;
+            newDiv.style.backgroundColor = color;
+            newDiv.style.fontSize = '16px';
+
+            // Optionnel: Ajoutez du contenu au nouvel élément
+            newDiv.innerHTML = textmes;
+
+            // Ajoutez le nouvel élément au conteneur
+            container.appendChild(newDiv);
+        }
+		
+		
  function addToTerminal(text) {
     var terminal = document.getElementById('terminal');
     var isNewContentAdded = false;
@@ -1095,10 +1212,7 @@ if (cookieValue) {
 function StartDiscoSensor() {
 
   initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/" + "OMG_ESP32_LORA" + "/MERGEtoMQTT/Sensor/#")
- 
-  
-  
-  
+   
   initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/" + "OMG_ESP32_LORA2" + "/MERGEtoMQTT/Sensor/#")
 
 }
@@ -1121,7 +1235,7 @@ function fetchMQTTConnection() {
 
       //copyall()
 
-
+console.log("fetchMQTTConnection")
 
       //   initializeMQTTConnection("wss://811bda171b64435d9323de3dac2d9bbf.s1.eu.hivemq.cloud:8884/mqtt", "home/" + "/MERGEtoMQTT/" + "/Sensor/#");
 console.log("myinitializeMQTTConnection", "home/" , Name_OMG , "GPIOInputChat", SelectedDevice , "/History/#")
@@ -1274,10 +1388,29 @@ async function changefiltre(dir) {
   await mqttService_Hive.disconnect()
   initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/" + Name_OMG + "/MERGEtoMQTT/" + SelectedDevice + "/Histo/" + filtre + "/#");
 
-
+//
   initializeMQTTConnection_Hive(SERVER_HIVE, "home/" + Name_OMG + "/MERGEtoMQTT/" + SelectedDevice + "/Histo/" + filtre + "/#");
 
 
+
+ var filtreinf = + padWithLeadingZeros((myDate.getDate()), 1)  +"-" +   padWithLeadingZeros((myDate.getMonth() + 1), 2) + "-" + myDate.getFullYear() 
+
+
+
+console.log("myinitializeMQTTConnectionchangefiltre", "home/" , Name_OMG , "/GPIOInputChat/", SelectedDevice , "/History/"+filtreinf+ "/#")
+
+
+
+
+ await mqttService.mqttClient.unsubscribe(chcroc)
+  chcroc= "home/" + Name_OMG + "/GPIOInputChat/"+ SelectedDevice + "/History/"+ filtreinf + "/#"
+  initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt",chcroc);
+
+ lasttime="00:00:00"
+ countappuis=0 
+ termid=0
+   const container = document.getElementById('terminalcontainer');
+container.innerHTML="";
 
   idategraph.innerHTML = filtre
 
