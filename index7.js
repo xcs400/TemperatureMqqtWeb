@@ -1087,7 +1087,7 @@ if (cookieValue) {
 
 function StartDiscoSensor() {
 
- // initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/" + "OMG_ESP32_LORA" + "/MERGEtoMQTT/Sensor/#")
+  initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/" + "OMG_ESP32_LORA" + "/MERGEtoMQTT/Sensor/#")
  
   
   
