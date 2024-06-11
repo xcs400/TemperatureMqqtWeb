@@ -648,30 +648,30 @@ function updateSensorReadings(topic, jsonResponse, copyhive) {
 				hideElementsByClass("update-section")
 				
 			
-		const time1 = lasttime
-        const time2 = secondField;
-        const result = subtractTimes(time2, time1);
-		lasttime=secondField
-		console.log("eee", result)
-		countappuis++
-		
-		if (result>15*60)  //15mn
-			termid++;
-						 
-						 
-			if (termid&1)
-				var color="#cccccc"
-			else
-				var color="#cc80cc"	
+			const time1 = lasttime
+			const time2 = secondField;
+			const result = subtractTimes(time2, time1);
+			lasttime=secondField
+
+			countappuis++
 			
-	//		ajoutTerm("terminal"+termid, color,secondField+" "+jsonResponse.risingEdgeCount ) 
-			let pr=toTimeStringsimple(result)
-	
-	
-			ajoutTerm("terminal"+termid, color,secondField+"  &nbsp &nbsp &nbsp  +"+pr +"" ) 
+			if (result>15*60)  //15mn
+				termid++;
+							 
+							 
+				if (termid&1)
+					var color="#dccccc"
+				else
+					var color="#0cc20"	
+				
+		//		ajoutTerm("terminal"+termid, color,secondField+" "+jsonResponse.risingEdgeCount ) 
+				let pr=toTimeStringsimple(result)
+		
+		
+				ajoutTerm("terminal"+termid, color,secondField+"  &nbsp &nbsp &nbsp  +"+pr +"" ) 
+				 
+			 }
 			 
-		 }
-		 
 		 document.getElementById(`Lasttriger`).innerText = "Dernier appui a :" +jsonResponse.timestamp + " cycles: "+termid+ " totaljour:"  +countappuis ;
 
 	 }
