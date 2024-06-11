@@ -520,7 +520,7 @@ let newbatteryYArray = [];
 // The maximum number of data points displayed on our scatter/line graph
 let MAX_GRAPH_POINTS = 220;
 let ctr = 0;
-
+let  cumulpression=0;
 
 // Callback function that will retrieve our latest sensor readings and redraw our Gauge with the latest readings
 function since() {
@@ -656,7 +656,9 @@ function updateSensorReadings(topic, jsonResponse, copyhive) {
 			countappuis++
 			
 			if (result>15*60)  //15mn
-				termid++;
+			{termid++;
+					 cumulpression=0;	
+			}
 							 
 							 
 				if (termid&1)
@@ -667,8 +669,12 @@ function updateSensorReadings(topic, jsonResponse, copyhive) {
 		//		ajoutTerm("terminal"+termid, color,secondField+" "+jsonResponse.risingEdgeCount ) 
 				let pr=toTimeStringsimple(result)
 		
-		
-				ajoutTerm("terminal"+termid, color,secondField+"  &nbsp &nbsp &nbsp  +"+pr +"" ) 
+						// Vérifier si elapsedTime existe, sinon l'initialiser à 0
+				jsonResponse.elapsedTime = jsonResponse.elapsedTime || 0;
+
+cumulpression=cumulpression+jsonResponse.elapsedTime
+ 
+				ajoutTerm("terminal"+termid, color,secondField+" &nbsp&nbsp &nbsp  +"+pr +"  &nbsp&nbsp&nbsp Pres: "+jsonResponse.elapsedTime+"ms" +" /" + cumulpression+"ms") 
 				 
 			 }
 			 
@@ -678,6 +684,8 @@ function updateSensorReadings(topic, jsonResponse, copyhive) {
  
 	}
 }
+
+
 
    function toTimeStringsimple(totalSeconds) {
             const hours = Math.floor(totalSeconds / 3600);
