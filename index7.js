@@ -655,7 +655,7 @@ function updateSensorReadings(topic, jsonResponse, copyhive) {
 		console.log("eee", result)
 		countappuis++
 		
-		if (result>40)
+		if (result>15*60)  //15mn
 			termid++;
 						 
 						 
