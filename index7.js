@@ -679,8 +679,8 @@ ajoutTerm(
   color, 
   "<table style='width: 100%;'><tr>" +
   "<td style='width: 10%;'>" + secondField + "</td>" +
-  "<td style='width: 28%;'>&nbsp;&nbsp;" + pr + "</td>" +
-  "<td style='width: 40%;'>&nbsp;&nbsp;Pres: " + jsonResponse.elapsedTime + "ms / " + cumulpression + "ms</td>" +
+  "<td style='width: 32%;'>" + "+"+pr + "</td>" +
+  "<td style='width: 40%;'>p:" + jsonResponse.elapsedTime + "ms/" + cumulpression + "ms</td>" +
   "</tr></table>"
 );
 				 
