@@ -662,9 +662,9 @@ function updateSensorReadings(topic, jsonResponse, copyhive) {
 							 
 							 
 				if (termid&1)
-					var color="#dccccc"
+					var color="#eccccc"
 				else
-					var color="#0cc20"	
+					var color="#cccca0"	
 				
 		//		ajoutTerm("terminal"+termid, color,secondField+" "+jsonResponse.risingEdgeCount ) 
 				let pr=toTimeStringsimple(result)
@@ -674,7 +674,15 @@ function updateSensorReadings(topic, jsonResponse, copyhive) {
 
 cumulpression=cumulpression+jsonResponse.elapsedTime
  
-				ajoutTerm("terminal"+termid, color,secondField+" &nbsp&nbsp &nbsp  +"+pr +"  &nbsp&nbsp&nbsp Pres: "+jsonResponse.elapsedTime+"ms" +" /" + cumulpression+"ms") 
+ajoutTerm(
+  "terminal" + termid, 
+  color, 
+  "<table style='width: 100%;'><tr>" +
+  "<td style='width: 10%;'>" + secondField + "</td>" +
+  "<td style='width: 28%;'>&nbsp;&nbsp;" + pr + "</td>" +
+  "<td style='width: 40%;'>&nbsp;&nbsp;Pres: " + jsonResponse.elapsedTime + "ms / " + cumulpression + "ms</td>" +
+  "</tr></table>"
+);
 				 
 			 }
 			 
@@ -701,11 +709,11 @@ cumulpression=cumulpression+jsonResponse.elapsedTime
 
             // Ajouter les minutes si elles ne sont pas égales à 0
             if (minutes > 0) {
-                result += `${minutes}Min `;
+                result += `${minutes}min `;
             }
 
             // Toujours ajouter les secondes
-            result += `${seconds}Sec`;
+            result += `${seconds}s`;
 
             return result.trim();
         }
