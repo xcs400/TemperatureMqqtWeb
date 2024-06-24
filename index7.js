@@ -539,7 +539,7 @@ function since() {
   setTimeout(since, 1000);
 
 }
-
+var inc=20
 function updateSensorReadings(topic, jsonResponse, copyhive) {
   console.log(typeof jsonResponse);
   console.log(jsonResponse);
@@ -691,9 +691,117 @@ ajoutTerm(
 	 }
  
 	}
+	
+	
+	
+	// chauffeau
+	 if (jsonResponse.NState !== undefined)     // terminal chauffeau
+ {
+
+	 let idategraph = document.getElementById('dategraph');
+	 if (  jsonResponse.id.includes( transformDate (idategraph.innerHTML) )  )
+	 {
+		 console.log(jsonResponse);
+			
+			ajoutTerm(
+			  "terminal" + termid, 
+			  "#eccccc", 
+			"<td style=''>" + jsonResponse.Time  + "</td><td>--------uptime: </td><td>"+  Math.floor((jsonResponse.Elapsed / 60) * 10) / 10   +"</td>  </tr>  </tr>" 
+			);
+			
+	
+			ajoutTerm(
+			  "terminal" + termid, 
+			  "#cccca0"	, 
+			  "<table style='width: 100%;'><tr>" +
+			
+
+			  "<td style=''>Old:" + jsonResponse.OState  + "</td>" +
+			"<td style=''>durée:" + jsonResponse.D  + "</td>" +
+	
+			  "<td style=''>NEW: " + jsonResponse.NState  + "</td>" +
+			  "<td style=''>t1: " + jsonResponse.T1  + "</td>" +
+			  "<td style=''>t2: " + jsonResponse.T2  + "</td>" +
+			  "<td style=''>tR: " + jsonResponse.TR  + "</td>" +
+			  "</tr></table>"
+			);
+			
+			 //   burstupdateCharts(jsonResponse.Time, String(jsonResponse.TR), String(jsonResponse.TR), String(jsonResponse.TR), temperatureHistoryDiv);
+	//	  var arDate = [transformDateString(jsonResponse.Time)]
+			
+		  var arDate = [inc]
+
+			var artemp = [String(jsonResponse.TR)]
+		 
+		  var xArray = []
+		  xArray.push(arDate)
+		  var yArray = []
+		  yArray.push(artemp);
+
+
+		  var data_update = {
+			x: xArray,
+			y: yArray
+		
+			}
+		 
+
+inc++
+ 
+  
+		 Plotly.extendTraces(temperatureHistoryDiv, data_update,[0]);
+
+		 
+			
+							 
+		 }
+			 
+	//	 document.getElementById(`Lasttriger`).innerText = "Dernier appui a :" +jsonResponse.timestamp + " cycles: //"+termid+ " totaljour:"  +countappuis ;
+
+	 
+ 
+	}
+	
+	
+}
+
+//js: transform chaine date   24-06-2024/00-01-10   en 2024-06-24 00:19
+function transformDateString(dateStr) {
+  // Séparer la date et l'heure
+  let [datePart, timePart] = dateStr.split('/');
+
+  // Séparer les parties de la date
+  let [day, month, year] = datePart.split('-');
+
+  // Séparer les parties de l'heure
+  let [hours, minutes, seconds] = timePart.split('-');
+
+  // Reformatage de la date
+  let formattedDate = `${year}-${month}-${day}`;
+
+  // Calculez les minutes
+  let totalMinutes = parseInt(minutes) + Math.floor(parseInt(seconds) / 60);
+
+  // Reformatage de l'heure
+  let formattedTime = `${hours.padStart(2, '0')}:${totalMinutes.toString().padStart(2, '0')}`;
+
+  // Combine date and time
+  let result = `${formattedDate} ${formattedTime}`;
+
+  return result;
 }
 
 
+function transformDate(isoDate) {
+    // Split the input date into year, month, and day
+    let parts = isoDate.split('-');
+    let year = parts[0];
+    let month = parts[1];
+    let day = parts[2];
+
+    // Return the transformed date in DD-MM-YYYY format
+    return `${day}-${month}-${year}`;
+}
 
    function toTimeStringsimple(totalSeconds) {
             const hours = Math.floor(totalSeconds / 3600);
@@ -856,8 +964,8 @@ function burstupdateCharts(jdate, jvalue, jtmin, jtmax, grapf) {
 
   };
 
-  Plotly.update(grapf, data_update);
-
+ Plotly.update(grapf, data_update);
+ 
 }
 
 
@@ -1256,6 +1364,8 @@ console.log("fetchMQTTConnection")
       //   initializeMQTTConnection("wss://811bda171b64435d9323de3dac2d9bbf.s1.eu.hivemq.cloud:8884/mqtt", "home/" + "/MERGEtoMQTT/" + "/Sensor/#");
 console.log("myinitializeMQTTConnection", "home/" , Name_OMG , "GPIOInputChat", SelectedDevice , "/History/#")
      initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/" + Name_OMG + "/GPIOInputChat/"+ SelectedDevice + "/History/#");
+
+     initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/" + Name_OMG + "/LORAtoMQTT/"+ SelectedDevice + "/History/#");
 
       initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/" + Name_OMG + "/MERGEtoMQTT/" + SelectedDevice + "/LastMessage/#");
 
