@@ -243,14 +243,12 @@ const historyCharts = [
 ];
 
 
-
-// History Data
 var temperatureTrace = {
-  x: [1],
-  y: [10],
+  x: [],
+  y: [],
+    error_y: { color: 'f44', symmetric: false, array: [10], arrayminus: [5], type: 'data', visible: true },
 
-  error_y: { color: 'f44', symmetric: false, array: [10], arrayminus: [5], type: 'data', visible: true },
-
+ 
 
   name: "Temperature",
   mode: "lines",   //+markers",
@@ -268,6 +266,24 @@ var voltageTrace = {
   ,
 
 };
+
+
+// History Data
+/*
+var temperatureTrace = {
+  x: [1],
+  y: [10],
+
+  error_y: { color: 'f44', symmetric: false, array: [10], arrayminus: [5], type: 'data', visible: true },
+
+
+  name: "Temperature",
+  mode: "lines",   //+markers",
+  type: "scatter",
+};
+
+
+*/
 var humidityTrace = {
   x: [],
   y: [],
@@ -716,20 +732,20 @@ ajoutTerm(
 			  "<table style='width: 100%;'><tr>" +
 			
 
-			  "<td style=''>Old:" + jsonResponse.OState  + "</td>" +
-			"<td style=''>durée:" + jsonResponse.D  + "</td>" +
+			  "<td style=''>O:" + jsonResponse.OState  + "</td>" +
+			"<td style=''>d:" + jsonResponse.D  + "</td>" +
 	
-			  "<td style=''>NEW: " + jsonResponse.NState  + "</td>" +
-			  "<td style=''>t1: " + jsonResponse.T1  + "</td>" +
-			  "<td style=''>t2: " + jsonResponse.T2  + "</td>" +
-			  "<td style=''>tR: " + jsonResponse.TR  + "</td>" +
+			  "<td style=''>N:" + jsonResponse.NState  + "</td>" +
+			  "<td style=''>1:" + jsonResponse.T1  + "</td>" +
+			  "<td style=''>2:" + jsonResponse.T2  + "</td>" +
+			  "<td style=''>R:" + jsonResponse.TR  + "</td>" +
 			  "</tr></table>"
 			);
 			
 			 //   burstupdateCharts(jsonResponse.Time, String(jsonResponse.TR), String(jsonResponse.TR), String(jsonResponse.TR), temperatureHistoryDiv);
-	//	  var arDate = [transformDateString(jsonResponse.Time)]
+		  var arDate = [transformDateString(jsonResponse.Time)]
 			
-		  var arDate = [inc]
+	//	  var arDate = [inc]
 
 			var artemp = [String(jsonResponse.TR)]
 		 
@@ -783,7 +799,7 @@ function transformDateString(dateStr) {
   let totalMinutes = parseInt(minutes) + Math.floor(parseInt(seconds) / 60);
 
   // Reformatage de l'heure
-  let formattedTime = `${hours.padStart(2, '0')}:${totalMinutes.toString().padStart(2, '0')}`;
+  let formattedTime = `${hours.padStart(2, '0')}:${totalMinutes.toString().padStart(2, '0')}:00`;
 
   // Combine date and time
   let result = `${formattedDate} ${formattedTime}`;
