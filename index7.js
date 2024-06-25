@@ -230,17 +230,44 @@ themeToggler.addEventListener("click", () => {
 /*
   Plotly.js graph and chart setup code
 */
+
+
+var chauffeauHistoryDiv = document.getElementById("chauffeau-history");
 var temperatureHistoryDiv = document.getElementById("temperature-history");
 var voltageHistoryDiv = document.getElementById("voltage-history");
 var humidityHistoryDiv = document.getElementById("humidity-history");
 
 
 const historyCharts = [
+  chauffeauHistoryDiv,
   temperatureHistoryDiv,
   voltageHistoryDiv,
   humidityHistoryDiv,
 
 ];
+
+
+  // Création des traces
+    var chauffeauTrace = {
+      x: [],
+      y: [],
+      name: "TemperatureRemote",
+      mode: "lines",
+      type: "scatter",  // Le type doit être "scatter" pour les lignes
+	      marker: {
+        color: []
+      }
+    };
+
+    var chauffeauState = {
+      x: [],
+      y: [],
+      name: "STATE",
+      type: 'bar',
+      marker: {
+        color: []
+      }
+    };
 
 
 var temperatureTrace = {
@@ -324,6 +351,51 @@ var temperatureLayout = {
 
 
 };
+
+
+
+
+
+
+var chauffeauLayout = {
+  // autosize: true,
+
+  title: {
+    text: "Chauffe-eau",
+  },
+
+  font: {
+    size: 14,
+    color: chartFontColor,
+    family: "poppins, san-serif",
+  },
+  colorway: ["#05AD86"],
+  margin: { t: 40, b: 120, l: 40, r: 50, pad: 10 },
+  plot_bgcolor: chartBGColor,
+  paper_bgcolor: chartBGColor,
+  xaxis: {
+    color: chartAxisColor,
+    linecolor: chartAxisColor,
+    gridwidth: "2",
+    autorange: true,
+
+  },
+  yaxis: {
+    color: chartAxisColor,
+    linecolor: chartAxisColor,
+    gridwidth: "2",
+    autorange: true,
+  },
+
+
+};
+
+
+
+
+
+
+
 var voltageLayout = {
   autosize: true,
   title: {
@@ -418,6 +490,8 @@ var config = { responsive: true, displayModeBar: false, type: "scatter", };
 // Event listener when page is loaded
 window.addEventListener("load", (event) => {
   // testjs()
+  
+  Plotly.newPlot(chauffeauHistoryDiv, [chauffeauTrace,chauffeauState], chauffeauLayout, config);
   Plotly.newPlot(temperatureHistoryDiv, [temperatureTrace], temperatureLayout, config);
   Plotly.newPlot(voltageHistoryDiv, [voltageTrace], voltageLayout, config);
   Plotly.newPlot(humidityHistoryDiv, [humidityTrace], humidityLayout, config);
@@ -743,32 +817,27 @@ ajoutTerm(
 			);
 			
 			 //   burstupdateCharts(jsonResponse.Time, String(jsonResponse.TR), String(jsonResponse.TR), String(jsonResponse.TR), temperatureHistoryDiv);
-		  var arDate = [transformDateString(jsonResponse.Time)]
-			
-	//	  var arDate = [inc]
-
-			var artemp = [String(jsonResponse.TR)]
-		 
-		  var xArray = []
-		  xArray.push(arDate)
-		  var yArray = []
-		  yArray.push(artemp);
-
+		  var arDate = transformDateString(jsonResponse.Time)
+		  var artemp = String(jsonResponse.TR)
+		  var arstate = String(jsonResponse.NState)
+		
+ 
 
 		  var data_update = {
-			x: xArray,
-			y: yArray
-		
+	  x: [[arDate], [arDate]],
+      y: [[artemp], [ stateIndices[arstate]*10 ]   ],
+	   'marker.color': [ [null] , [getColor( stateIndices[arstate] )]  ] 
 			}
 		 
 
-inc++
+		 Plotly.extendTraces(chauffeauHistoryDiv, data_update,[0,1]);
  
   
-		 Plotly.extendTraces(temperatureHistoryDiv, data_update,[0]);
 
-		 
-			
+		const temperature = document.getElementById("temperature-history");
+		temperature.style.display = "none"
+ 
+inc++			
 							 
 		 }
 			 
@@ -781,6 +850,43 @@ inc++
 	
 }
 
+   // Définir la liste des chaînes
+  /*  var states = [
+     "OFF",
+    "DUTY",
+    "?R?",
+    "ON",
+	"OFF_D"
+     ];
+	 */
+    // Fonction pour obtenir une couleur basée sur une valeur
+    function getColor(value) {
+      if (value == 0) return 'rgb(0, 0, 0)';  // 
+      if (value == 1 ) return 'rgb(50, 255, 50)';  // 
+       if (value == 2 ) return 'rgb(0, 0, 70)';  // 
+       if (value == 3 ) return 'rgb(255, 0, 0)';  // 
+       if (value == 4 ) return 'rgb(128, 128, 128)';  // 
+    
+    }
+	
+	
+   // Définir la liste des chaînes
+    var states = [
+     "OFF",
+    "DUTY",
+    "?R?",
+    "ON",
+	"OFF_D"
+     ];
+	
+   			
+    // Créer un objet d'association des chaînes avec des indices
+    var stateIndices = {};
+    for (var i = 0; i < states.length; i++) {
+      stateIndices[states[i]] = i;
+    }
+
+		
 //js: transform chaine date   24-06-2024/00-01-10   en 2024-06-24 00:19
 function transformDateString(dateStr) {
   // Séparer la date et l'heure
