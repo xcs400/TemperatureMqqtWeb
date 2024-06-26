@@ -22,6 +22,9 @@ let historyData = {};
 let lasttime="00:00:00"
 let countappuis=0 
 
+let OState=-1
+let NState=-1
+
 var SelectedDevice = "?"
 
 // Déclaration d'un tableau vide pour stocker les capteurs
@@ -637,8 +640,8 @@ function since() {
 }
 var inc=20
 function updateSensorReadings(topic, jsonResponse, copyhive) {
-  console.log(typeof jsonResponse);
-  console.log(jsonResponse);
+ // console.log(typeof jsonResponse);
+ // console.log(jsonResponse);
 
   if (jsonResponse.TempCelsius !== undefined)     // cas dernier message update gauge
   {
@@ -661,7 +664,7 @@ function updateSensorReadings(topic, jsonResponse, copyhive) {
 
   }
 
-  if (jsonResponse.Date !== undefined)     // cas dernier message update chart
+  if (jsonResponse.Date !== undefined)     // cas reception des MERGES
   {
     var u = jsonResponse.Temp
     var TZ = u.split(',')
@@ -722,9 +725,10 @@ function updateSensorReadings(topic, jsonResponse, copyhive) {
   }
 
 
- if (jsonResponse.donotmerge !== undefined)     // cas dernier message update gauge
+ if (jsonResponse.donotmerge !== undefined)     // croquette
  {
-	 
+	console.log("reception donotmerge / chat :",jsonResponse)
+ 
 	 let idategraph = document.getElementById('dategraph');
 	 if (  jsonResponse.timestamp.includes(idategraph.innerHTML)   )
 	 {
@@ -791,8 +795,23 @@ ajoutTerm(
 	
 	
 	// chauffeau
-	 if (jsonResponse.NState !== undefined)     // terminal chauffeau
+	 if (jsonResponse.NState !== undefined  )     // terminal chauffeau
  {
+	 
+	console.log("reception NState / chauffeau :")
+	
+	  	if ( jsonResponse.OState  ==  OState  &&    jsonResponse.NState ==  NState)
+			return;
+	OState=jsonResponse.OState 
+	NState=jsonResponse.NState 
+	
+	
+    var TitleText = getCookie("TitleText")
+    TittlePage.innerHTML = TitleText + " (" + jsonResponse.name + ")";
+    mqttupdated.textContent = jsonResponse.Time.split('/')[1].replaceAll('-', ':')
+
+   setTimeout(since, 1000);
+  
 
 	 let idategraph = document.getElementById('dategraph');
 	 if (  jsonResponse.id.includes( transformDate (idategraph.innerHTML) )  )
@@ -812,13 +831,13 @@ ajoutTerm(
 			  "<table style='width: 100%;'><tr>" +
 			
 
-			  "<td style=''>O:" + jsonResponse.OState  + "</td>" +
-			"<td style=''>d:" + jsonResponse.D  + "</td>" +
+			  "<td style=''>" + jsonResponse.OState  + "</td>" +
+			"<td style=''>durée:" + jsonResponse.D  + "</td>" +
 	
-			  "<td style=''>N:" + jsonResponse.NState  + "</td>" +
-			  "<td style=''>1:" + jsonResponse.T1  + "</td>" +
-			  "<td style=''>2:" + jsonResponse.T2  + "</td>" +
-			  "<td style=''>R:" + jsonResponse.TR  + "</td>" +
+			  "<td style=''>" + jsonResponse.NState  + "</td>" +
+			  "<td style=''>" + jsonResponse.T1  + "</td>" +
+			  "<td style=''>" + jsonResponse.T2  + "</td>" +
+			  "<td style=''>" + jsonResponse.TR  + "</td>" +
 			  "</tr></table>"
 			);
 			
@@ -831,7 +850,7 @@ ajoutTerm(
 
 		  var data_update = {
 	  x: [[arDate], [arDate]],
-      y: [[artemp], [ stateIndices[arstate]*10 ]   ],
+      y: [[artemp], [ stateIndices[arstate]*5 +5 ]   ],
 	   'marker.color': [ [null] , [getColor( stateIndices[arstate] )]  ] 
 			}
 		 
@@ -870,11 +889,11 @@ inc++
 	 */
     // Fonction pour obtenir une couleur basée sur une valeur
     function getColor(value) {
-      if (value == 0) return 'rgb(0, 0, 0)';  // 
+      if (value == 0) return 'rgb(0, 0, 255)';  // 
       if (value == 1 ) return 'rgb(50, 255, 50)';  // 
-       if (value == 2 ) return 'rgb(0, 0, 70)';  // 
+       if (value == 2 ) return 'rgb(0, 0, 255)';  // 
        if (value == 3 ) return 'rgb(255, 0, 0)';  // 
-       if (value == 4 ) return 'rgb(128, 128, 128)';  // 
+       if (value == 4 ) return 'rgb(0, 0, 255)';  // 
     
     }
 	
@@ -1260,11 +1279,13 @@ function onMessage(topic, message) {
 
   stringResponse = stringResponse.replace('id:', '"id":');
   stringResponse = stringResponse.replace('visiblename:', '"visiblename":');
-  console.log("recept:",stringResponse)
+ // console.log("recept:",stringResponse)
 
   var messageResponse = JSON.parse(stringResponse);
 
   if (topic.search("Sensor") != -1) {
+	  console.log("reception Sensor :",messageResponse)
+
     updateDiscovery(topic, messageResponse);
     return
   }
