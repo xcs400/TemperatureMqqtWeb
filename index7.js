@@ -254,7 +254,29 @@ const historyCharts = [
     var chauffeauTrace = {
       x: [],
       y: [],
-      name: "TemperatureRemote",
+      name: "TR",
+      mode: "lines",
+      type: "scatter",  // Le type doit être "scatter" pour les lignes
+	      marker: {
+        color: []
+      }
+    };
+
+  // Création des traces
+    var chauffeauTraceIn = {
+      x: [],
+      y: [],
+      name: "TIn",
+      mode: "lines",
+      type: "scatter",  // Le type doit être "scatter" pour les lignes
+	      marker: {
+        color: []
+      }
+    };
+    var chauffeauTraceOut = {
+      x: [],
+      y: [],
+      name: "TOut",
       mode: "lines",
       type: "scatter",  // Le type doit être "scatter" pour les lignes
 	      marker: {
@@ -265,7 +287,7 @@ const historyCharts = [
     var chauffeauState = {
       x: [],
       y: [],
-      name: "STATE",
+      name: "ST",
       type: 'bar',
       marker: {
         color: []
@@ -494,7 +516,7 @@ var config = { responsive: true, displayModeBar: false, type: "scatter", };
 window.addEventListener("load", (event) => {
   // testjs()
   
-  Plotly.newPlot(chauffeauHistoryDiv, [chauffeauTrace,chauffeauState], chauffeauLayout, config);
+  Plotly.newPlot(chauffeauHistoryDiv, [chauffeauTrace,chauffeauTraceIn,chauffeauTraceOut,chauffeauState], chauffeauLayout, config);
   Plotly.newPlot(temperatureHistoryDiv, [temperatureTrace], temperatureLayout, config);
   Plotly.newPlot(voltageHistoryDiv, [voltageTrace], voltageLayout, config);
   Plotly.newPlot(humidityHistoryDiv, [humidityTrace], humidityLayout, config);
@@ -806,18 +828,25 @@ ajoutTerm(
 	NState=jsonResponse.NState 
 	
 	
+	
+	
     var TitleText = getCookie("TitleText")
     TittlePage.innerHTML = TitleText + " (" + jsonResponse.name + ")";
     mqttupdated.textContent = jsonResponse.Time.split('/')[1].replaceAll('-', ':')
 
    setTimeout(since, 1000);
   
+let t=jsonResponse.Time.split('/')
 
 	 let idategraph = document.getElementById('dategraph');
 	 if (  jsonResponse.id.includes( transformDate (idategraph.innerHTML) )  )
 	 {
 		 console.log(jsonResponse);
-			
+			console.log(t[1])
+			 if (isTimeLessThan(t[1],"10-00-00"))
+				 return
+				 
+				 
 			ajoutTerm(
 			  "terminal" + termid, 
 			  "#eccccc", 
@@ -843,19 +872,30 @@ ajoutTerm(
 			
 			 //   burstupdateCharts(jsonResponse.Time, String(jsonResponse.TR), String(jsonResponse.TR), String(jsonResponse.TR), temperatureHistoryDiv);
 		  var arDate = transformDateString(jsonResponse.Time)
-		  var artemp = String(jsonResponse.TR)
+		 
 		  var arstate = String(jsonResponse.NState)
 		
  
 
 		  var data_update = {
-	  x: [[arDate], [arDate]],
-      y: [[artemp], [ stateIndices[arstate]*5 +5 ]   ],
-	   'marker.color': [ [null] , [getColor( stateIndices[arstate] )]  ] 
+	  x: [[arDate], [arDate] ,  [arDate], [arDate]],
+      y: [[String(jsonResponse.TR)], 
+	      [String(jsonResponse.T1)],
+		  [String(jsonResponse.T2)],
+		  [ stateIndices[arstate]*5 +5 ]   ],
+		  
+	  'marker.color': [
+    [null],
+    ['rgb(255, 0, 0)'],
+    ['rgb(0, 0, 255)'],
+    [getColor( stateIndices[arstate] )]
+  ]
+
+  
 			}
 		 
 
-		 Plotly.extendTraces(chauffeauHistoryDiv, data_update,[0,1]);
+		 Plotly.extendTraces(chauffeauHistoryDiv, data_update,[0,1,2,3]);
  
   
 
@@ -912,6 +952,18 @@ inc++
     var stateIndices = {};
     for (var i = 0; i < states.length; i++) {
       stateIndices[states[i]] = i;
+    }
+
+
+   // Fonction pour convertir une heure au format HH:MM:SS en secondes
+    function timeToSeconds(timeStr) {
+      const [hours, minutes, seconds] = timeStr.split('-').map(Number);
+      return hours * 3600 + minutes * 60 + seconds;
+    }
+
+    // Fonction pour comparer deux heures au format HH:MM:SS
+    function isTimeLessThan(time1, time2) {
+      return timeToSeconds(time1) < timeToSeconds(time2);
     }
 
 		
