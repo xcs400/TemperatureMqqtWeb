@@ -501,7 +501,7 @@ window.addEventListener("load", (event) => {
 
   historyData = JSON.parse(getCookiehisto('historyData')) || {};
 
-
+attachButtonHandlers()
 
   StartDiscoSensor()
 
@@ -1843,3 +1843,34 @@ function updatehistojour(data, item) {
 
   Plotly.newPlot('graphContainer', graphData, layout);
 }
+
+
+  // Fonction pour attacher les événements de clic aux boutons
+    function attachButtonHandlers() {
+      var buttonClasses = [
+        'reset', 'incseuil', 'decseuil',
+        'incintervalpompe', 'decintervalpompe',
+        'incdutyoff', 'decdutyoff', 'off' , 'on' ,'getparametre'
+      ];
+
+      buttonClasses.forEach(function(buttonClass) {
+        var buttons = document.getElementsByClassName(buttonClass);
+        for (var i = 0; i < buttons.length; i++) {
+          buttons[i].addEventListener('click', function() {
+            SendMqtt(buttonClass);
+          });
+        }
+      });
+    }
+
+
+  function SendMqtt(action) {
+      console.log("Button clicked: " + action);
+      // Implémentez ici la logique pour envoyer un message MQTT en fonction de l'action
+	  	var topic = "home/OMG_ESP32_LORA/commands/MQTTtoLORA"
+	var textit='{"message": "{\"id\":\"Chauffeau\",\"command\":\"' + action +'\"}" }'
+	      console.log("Button clicked: " + textit);
+mqttService.publish(topic, textit, { retain: false, expiryInterval: 0 });
+
+
+    }
