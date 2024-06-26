@@ -535,6 +535,7 @@ window.addEventListener("load", (event) => {
       voltage[i].style.display = val
     }
 
+
     const voltagehistory = document.getElementById("voltage-history");
     voltagehistory.style.display = val
 
@@ -551,6 +552,11 @@ window.addEventListener("load", (event) => {
 
     const humidityhistory = document.getElementById("humidity-history");
     humidityhistory.style.display = val
+
+
+	const chauffeau = document.getElementById("chauffeau-history");
+		chauffeau.style.display = "none"
+ 
 
   }
 
@@ -838,7 +844,10 @@ ajoutTerm(
 		temperature.style.display = "none"
  
 inc++			
-							 
+		
+	const chauffeau = document.getElementById("chauffeau-history");
+		chauffeau.style.display = "block"
+ 		
 		 }
 			 
 	//	 document.getElementById(`Lasttriger`).innerText = "Dernier appui a :" +jsonResponse.timestamp + " cycles: //"+termid+ " totaljour:"  +countappuis ;
