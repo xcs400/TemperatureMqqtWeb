@@ -27,6 +27,8 @@ let NState=-1
 
 var SelectedDevice = "?"
 
+
+
 // Déclaration d'un tableau vide pour stocker les capteurs
 let ListedeSensor = [];
 
@@ -36,6 +38,8 @@ let ListedeSensor = [];
  };  
 
 let SERVER_HIVE = "wss://811bda171b64435d9323de3dac2d9bbf.s1.eu.hivemq.cloud:8884/mqtt"
+
+
 
 
 /*
@@ -527,6 +531,23 @@ attachButtonHandlers()
 
   StartDiscoSensor()
 
+
+  const checkboxes = document.querySelectorAll('.checkbox-group input[type="checkbox"]');
+  
+  
+  // Ajoutez un écouteur d'événement click à chaque checkbox
+    checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener("click", function() {
+            saveCheckboxState(this); // Appel de la fonction saveCheckboxState avec le checkbox cliqué comme argument
+        });
+    });
+
+
+// lire les checkbox
+    checkboxes.forEach(checkbox => {
+        document.cookie = `${checkbox.id}=${checkbox.checked}; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+    });
+
     const elements = document.querySelectorAll('.checkbox-group');
     // Définit le style display de chaque élément à 'none'
     elements.forEach(element => {
@@ -933,6 +954,10 @@ inc++
 	
 	
 }
+
+
+
+
 
 
 
@@ -1992,3 +2017,10 @@ mqttService.publish(topic, textit, { retain: false, expiryInterval: 0 });
 
 
     }
+	
+	
+function saveCheckboxState(checkbox) {
+
+      document.cookie = `${checkbox.id}=${checkbox.checked}; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+	      location.reload();
+}
