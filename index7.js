@@ -1008,7 +1008,7 @@ inc++
                 rangeStart.setMinutes(currentDate.getMinutes() - 30);
             }
             if (minus10mn) {
-                rangeEnd.setMinutes(currentDate.getMinutes() -10);
+                rangeStart.setMinutes(currentDate.getMinutes() -10);
             }
 
             return targetDate >= rangeStart && targetDate <= rangeEnd;
