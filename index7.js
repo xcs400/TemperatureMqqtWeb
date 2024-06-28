@@ -527,6 +527,12 @@ attachButtonHandlers()
 
   StartDiscoSensor()
 
+    const elements = document.querySelectorAll('.checkbox-group');
+    // Définit le style display de chaque élément à 'none'
+    elements.forEach(element => {
+        element.style.display = 'none';
+    });
+	
 
   const sidebar = document.querySelector(".sidebar");
 
@@ -841,10 +847,13 @@ let t=jsonResponse.Time.split('/')
 	 let idategraph = document.getElementById('dategraph');
 	 if (  jsonResponse.id.includes( transformDate (idategraph.innerHTML) )  )
 	 {
-		 console.log(jsonResponse);
-			console.log(t[1])
-			 if (isTimeLessThan(t[1],"10-00-00"))
-				 return
+		// console.log(jsonResponse);
+		//	console.log(t[1])
+			// if (isTimeLessThan(t[1],"14-00-00"))
+		//		 return
+				 
+			if ( !	 isTimeInRange(t[1]))
+				return
 				 
 				 
 			ajoutTerm(
@@ -907,6 +916,13 @@ inc++
 	const chauffeau = document.getElementById("chauffeau-history");
 		chauffeau.style.display = "block"
  		
+		
+  const elements = document.querySelectorAll('.checkbox-group');
+    // Définit le style display de chaque élément à 'block' (ou tout autre valeur appropriée)
+    elements.forEach(element => {
+        element.style.display = 'block';
+    });
+		
 		 }
 			 
 	//	 document.getElementById(`Lasttriger`).innerText = "Dernier appui a :" +jsonResponse.timestamp + " cycles: //"+termid+ " totaljour:"  +countappuis ;
@@ -917,6 +933,56 @@ inc++
 	
 	
 }
+
+
+
+   function toggleAll(source) {
+            let checkboxes = document.querySelectorAll('.checkbox-group input[type="checkbox"]');
+            for (let checkbox of checkboxes) {
+                checkbox.checked = source.checked;
+            }
+        }
+
+        function isTimeInRange(timeStr) {
+            const currentDate = new Date();
+            const targetDate = new Date();
+            const [hours, minutes, seconds] = timeStr.split('-').map(Number);
+
+            targetDate.setHours(hours, minutes, seconds);
+
+             let minus12h = document.getElementById('minus12h').checked;
+             let minus6h = document.getElementById('minus6h').checked;
+            let minus1h = document.getElementById('minus1h').checked;
+            let minus30mn = document.getElementById('minus30mn').checked;
+            let minus10mn = document.getElementById('minus10mn').checked;
+
+            if (document.getElementById('all').checked) {
+                return true;
+            }
+
+            let rangeStart = new Date(currentDate);
+            let rangeEnd = new Date(currentDate);
+
+           if (minus12h) {
+                rangeStart.setHours(currentDate.getHours() - 12);
+            }
+  
+            if (minus6h) {
+                rangeStart.setHours(currentDate.getHours() - 6);
+            }
+            if (minus1h) {
+                rangeStart.setHours(currentDate.getHours() - 1);
+            }
+            if (minus30mn) {
+                rangeStart.setMinutes(currentDate.getMinutes() - 30);
+            }
+            if (minus10mn) {
+                rangeEnd.setMinutes(currentDate.getMinutes() -10);
+            }
+
+            return targetDate >= rangeStart && targetDate <= rangeEnd;
+        }
+
 
    // Définir la liste des chaînes
   /*  var states = [
@@ -1920,7 +1986,7 @@ function updatehistojour(data, item) {
       console.log("Button clicked: " + action);
       // Implémentez ici la logique pour envoyer un message MQTT en fonction de l'action
 	  	var topic = "home/OMG_ESP32_LORA/commands/MQTTtoLORA"
-	var textit='{"message": "{\"id\":\"Chauffeau\",\"command\":\"' + action +'\"}" }'
+	var textit= '{  message: \'{id:"Chauffeau",command:"'+action+'"}\' }'
 	      console.log("Button clicked: " + textit);
 mqttService.publish(topic, textit, { retain: false, expiryInterval: 0 });
 

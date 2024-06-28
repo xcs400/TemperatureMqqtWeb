@@ -1,6 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap");
 
-
+  
 
 :root {
   --color-primary: #7380ec;
@@ -683,3 +683,10 @@ main .histories h2 {
 }
 
 
+       .checkbox-group {
+            display: flex;
+            flex-direction: column;
+        }
+  input[type="checkbox"] {
+  appearance: checkbox;
+}
