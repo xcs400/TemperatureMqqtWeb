@@ -825,7 +825,11 @@ ajoutTerm(
 	// chauffeau
 	 if (jsonResponse.NState !== undefined  )     // terminal chauffeau
  {
-	 
+	   const elements = document.querySelectorAll('.checkbox-group');
+    // Définit le style display de chaque élément à 'block' (ou tout autre valeur appropriée)
+    elements.forEach(element => {
+        element.style.display = 'block';
+    });
 	console.log("reception NState / chauffeau :")
 	
 	  	if ( jsonResponse.OState  ==  OState  &&    jsonResponse.NState ==  NState)
@@ -917,11 +921,7 @@ inc++
 		chauffeau.style.display = "block"
  		
 		
-  const elements = document.querySelectorAll('.checkbox-group');
-    // Définit le style display de chaque élément à 'block' (ou tout autre valeur appropriée)
-    elements.forEach(element => {
-        element.style.display = 'block';
-    });
+
 		
 		 }
 			 
