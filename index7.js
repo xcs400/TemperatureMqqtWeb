@@ -544,9 +544,15 @@ attachButtonHandlers()
 
 
 // lire les checkbox
-    checkboxes.forEach(checkbox => {
-        document.cookie = `${checkbox.id}=${checkbox.checked}; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+ const cookies = document.cookie.split('; ');
+    cookies.forEach(cookie => {
+        const [name, value] = cookie.split('=');
+        const checkbox = document.getElementById(name);
+        if (checkbox) {
+            checkbox.checked = (value === 'true'); // Convertir la chaîne en booléen
+        }
     });
+	
 
     const elements = document.querySelectorAll('.checkbox-group');
     // Définit le style display de chaque élément à 'none'
