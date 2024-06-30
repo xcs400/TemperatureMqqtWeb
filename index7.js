@@ -848,7 +848,76 @@ ajoutTerm(
 	}
 	
 	
-	
+	 if (/*jsonResponse.model == "Chauffeau"  &&*/  jsonResponse.getparametre!== undefined  ) 
+	 
+		{
+        console.log("getparam " + jsonResponse.getparametre);
+        console.log("getparam " + jsonResponse.val);
+
+  //     console.log("clear " + topic);
+
+ //     mqttService.publish(topic, "", { retain: true, expiryInterval: 0 })  //vide le message
+
+
+        const tableBody = document.querySelector('#parametrechauffeau tbody');
+        let rowExists = false;
+
+        // Vérifiez si une ligne avec le même getparametre existe déjà
+        for (const row of tableBody.rows) {
+            if (row.cells[0].textContent === jsonResponse.getparametre) {
+                rowExists = true;
+
+                // Remplacez le contenu de la ligne existante
+                row.cells[1].textContent = jsonResponse.value;
+                row.cells[2].querySelector('input').value = jsonResponse.value;
+				if (jsonResponse.nextparametre)
+					GetChauffeauParam(jsonResponse.nextparametre)   //demande le parametre suivant
+
+
+                break;
+            }
+        }
+
+        // Si la ligne n'existe pas, créez-en une nouvelle
+        if (!rowExists) {
+            const row = document.createElement('tr');
+
+            const paramCell = document.createElement('td');
+            paramCell.textContent = jsonResponse.getparametre;
+            row.appendChild(paramCell);
+
+            const valueCell = document.createElement('td');
+            valueCell.textContent = jsonResponse.value;
+            row.appendChild(valueCell);
+
+            const newValueCell = document.createElement('td');
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = jsonResponse.value;
+            newValueCell.appendChild(input);
+            row.appendChild(newValueCell);
+
+			console.log(`get nextparam  ${jsonResponse.nextparametre} `);
+			if (jsonResponse.nextparametre)
+				GetChauffeauParam(jsonResponse.nextparametre)
+				
+				
+            const actionCell = document.createElement('td');
+            const button = document.createElement('button');
+            button.textContent = 'Envoyer';
+            button.addEventListener('click', () => {
+                const newValue = input.value;
+               console.log(`Nouvelle valeur  ${jsonResponse.getparametre}: ${newValue}`);
+              
+                // Ajoutez le code pour envoyer la nouvelle valeur au serveur ici
+            });
+            actionCell.appendChild(button);
+            row.appendChild(actionCell);
+
+            tableBody.appendChild(row);
+        }
+    }
+	 
 	// chauffeau
 	 if (jsonResponse.NState !== undefined  )     // terminal chauffeau
  {
@@ -859,8 +928,8 @@ ajoutTerm(
     });
 	console.log("reception NState / chauffeau :")
 	
-	  	if ( jsonResponse.OState  ==  OState  &&    jsonResponse.NState ==  NState)
-			return;
+	 // 	if ( jsonResponse.OState  ==  OState  &&    jsonResponse.NState ==  NState)
+	//		return;
 	OState=jsonResponse.OState 
 	NState=jsonResponse.NState 
 	
@@ -890,7 +959,7 @@ let t=jsonResponse.Time.split('/')
 			ajoutTerm(
 			  "terminal" + termid, 
 			  "#eccccc", 
-			"<td style=''>" + jsonResponse.Time  + "</td><td>--------uptime: </td><td>"+  Math.floor((jsonResponse.Elapsed / 60) * 10) / 10   +"</td>  </tr>  </tr>" 
+			"<td style=''>" + jsonResponse.Time  + "</td><td>--------uptime: </td><td>"+  Math.floor((jsonResponse.Elapsed / 60) * 10) / 10   +"mn</td>  </tr>  </tr>" 
 			);
 			
 	
@@ -1429,8 +1498,15 @@ function onMessage(topic, message) {
   stringResponse = stringResponse.replace('id:', '"id":');
   stringResponse = stringResponse.replace('visiblename:', '"visiblename":');
  // console.log("recept:",stringResponse)
-
+try {
   var messageResponse = JSON.parse(stringResponse);
+}
+catch (error) {
+    console.error("Error parsing JSON:", error+stringResponse);
+    // Handle the error (e.g., set messageResponse to a default value, notify the user, etc.)
+    var messageResponse = {}; // or any other default/fallback value
+
+}
 
   if (topic.search("Sensor") != -1) {
 	  console.log("reception Sensor :",messageResponse)
@@ -2023,7 +2099,19 @@ mqttService.publish(topic, textit, { retain: false, expiryInterval: 0 });
 
 
     }
-	
+
+
+  function GetChauffeauParam(paramname) {
+      console.log("GetChauffeauParam: " + paramname);
+      // Implémentez ici la logique pour envoyer un message MQTT en fonction de l'action
+	  	var topic = "home/OMG_ESP32_LORA/commands/MQTTtoLORA"
+	var textit= '{  message: \'{id:"Chauffeau",command:"getparametre",name:"'+paramname+'"}\' }'
+	      console.log("GetChauffeauParam mqtt: " + textit);
+mqttService.publish(topic, textit, { retain: false, expiryInterval: 0 });
+
+
+    }
+		
 	
 function saveCheckboxState(checkbox) {
 
