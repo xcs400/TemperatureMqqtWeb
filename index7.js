@@ -908,7 +908,7 @@ ajoutTerm(
             button.addEventListener('click', () => {
                 const newValue = input.value;
                console.log(`Nouvelle valeur  ${jsonResponse.getparametre}: ${newValue}`);
-              
+              Sendparam(jsonResponse.getparametre,newValue)
                 // Ajoutez le code pour envoyer la nouvelle valeur au serveur ici
             });
             actionCell.appendChild(button);
@@ -920,7 +920,7 @@ ajoutTerm(
 	 
 	// chauffeau
 	 if (jsonResponse.NState !== undefined  )     // terminal chauffeau
- {
+	{
 	   const elements = document.querySelectorAll('.checkbox-group');
     // Définit le style display de chaque élément à 'block' (ou tout autre valeur appropriée)
     elements.forEach(element => {
@@ -928,10 +928,37 @@ ajoutTerm(
     });
 	console.log("reception NState / chauffeau :")
 	
-	 // 	if ( jsonResponse.OState  ==  OState  &&    jsonResponse.NState ==  NState)
-	//		return;
+     if (jsonResponse.OState == OState && jsonResponse.NState == NState) {
+        const container = document.getElementById('terminalcontainer');
+        
+        // Vérifie si le conteneur a plus de deux enfants
+        if (container && container.children.length > 3) {
+            try {
+                const lastDiv = container.lastElementChild;
+                const secondLastDiv = lastDiv.previousElementSibling;
+
+                if (lastDiv && secondLastDiv && lastDiv.tagName === 'DIV' && secondLastDiv.tagName === 'DIV') {
+                    const lastRow = lastDiv.querySelector('tr');
+                    const firstTd = lastRow.cells[0].textContent;
+                    const secondTd = lastRow.cells[2].textContent;
+                    console.log('Premier champ:', firstTd);
+                    console.log('Second champ:', secondTd);
+					OState=firstTd
+					NState=secondTd
+                    // Supprime les deux derniers <div>
+                    container.removeChild(lastDiv);
+                    container.removeChild(secondLastDiv);
+                }
+            } catch (error) {
+                console.error('Erreur lors de la suppression des derniers éléments:', error);
+            }
+        }
+    }
+	else
+	{
 	OState=jsonResponse.OState 
 	NState=jsonResponse.NState 
+	}
 	
 	
 	
@@ -942,7 +969,7 @@ ajoutTerm(
 
    setTimeout(since, 1000);
   
-let t=jsonResponse.Time.split('/')
+	let t=jsonResponse.Time.split('/')
 
 	 let idategraph = document.getElementById('dategraph');
 	 if (  jsonResponse.id.includes( transformDate (idategraph.innerHTML) )  )
@@ -2095,6 +2122,18 @@ function updatehistojour(data, item) {
 	  	var topic = "home/OMG_ESP32_LORA/commands/MQTTtoLORA"
 	var textit= '{  message: \'{id:"Chauffeau",command:"'+action+'"}\' }'
 	      console.log("Button clicked: " + textit);
+mqttService.publish(topic, textit, { retain: false, expiryInterval: 0 });
+
+
+    }
+
+
+  function Sendparam(name,value) {
+     
+      // Implémentez ici la logique pour envoyer un message MQTT en fonction de l'action
+	  	var topic = "home/OMG_ESP32_LORA/commands/MQTTtoLORA"
+	var textit= '{  message: \'{id:"Chauffeau",command:"setparametre",name:"' +name + '",value:"'+value+'" }\' }'
+	      console.log("send param clicked: " + textit);
 mqttService.publish(topic, textit, { retain: false, expiryInterval: 0 });
 
 
