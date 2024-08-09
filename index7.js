@@ -1767,16 +1767,16 @@ console.log("fetchMQTTConnection")
 
       //   initializeMQTTConnection("wss://811bda171b64435d9323de3dac2d9bbf.s1.eu.hivemq.cloud:8884/mqtt", "home/" + "/MERGEtoMQTT/" + "/Sensor/#");
 console.log("myinitializeMQTTConnection", "home/" , Name_OMG , "GPIOInputChat", SelectedDevice , "/History/#")
-     initializeMQTTConnection("ws://broker.emqx.io:8083/mqtt", "home/" + Name_OMG + "/GPIOInputChat/"+ SelectedDevice + "/History/#");
+     initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/" + Name_OMG + "/GPIOInputChat/"+ SelectedDevice + "/History/#");
 
-     initializeMQTTConnection("ws://broker.emqx.io:8083/mqtt", "home/" + Name_OMG + "/LORAtoMQTT/"+ SelectedDevice + "/History/#");
+     initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/" + Name_OMG + "/LORAtoMQTT/"+ SelectedDevice + "/History/#");
 
-      initializeMQTTConnection("ws://broker.emqx.io:8083/mqtt", "home/" + Name_OMG + "/MERGEtoMQTT/" + SelectedDevice + "/LastMessage/#");
+      initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/" + Name_OMG + "/MERGEtoMQTT/" + SelectedDevice + "/LastMessage/#");
 
       var ladate = new Date()
       var chd = ladate.getFullYear() + "-" + padWithLeadingZeros((ladate.getMonth() + 1), 2) + "-" + padWithLeadingZeros((ladate.getDate()), 2)
 
-      initializeMQTTConnection("ws://broker.emqx.io:8083/mqtt", "home/" + Name_OMG + "/MERGEtoMQTT/" + SelectedDevice + "/Histo/" + chd + "/#");
+      initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/" + Name_OMG + "/MERGEtoMQTT/" + SelectedDevice + "/Histo/" + chd + "/#");
 
       let idategraph = document.getElementById('dategraph');
       var ifiltre = idategraph.innerHTML = chd
@@ -1801,7 +1801,7 @@ function copyall() {
   };
 
 
-  const sourceMQTT = new MQTTService("ws://broker.emqx.io:8083/mqtt", {});
+  const sourceMQTT = new MQTTService("wss://broker.emqx.io:8084/mqtt", {});
   const destinationMQTT = new MQTTService("wss://811bda171b64435d9323de3dac2d9bbf.s1.eu.hivemq.cloud:8884/mqtt", {});
 
   async function copyMessagesAndDisconnect() {
@@ -1916,7 +1916,7 @@ async function changefiltre(dir) {
   var Name_OMG = getCookie("Name_OMG")
 
   await mqttService_Hive.disconnect()
-  initializeMQTTConnection("ws://broker.emqx.io:8083/mqtt", "home/" + Name_OMG + "/MERGEtoMQTT/" + SelectedDevice + "/Histo/" + filtre + "/#");
+  initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt", "home/" + Name_OMG + "/MERGEtoMQTT/" + SelectedDevice + "/Histo/" + filtre + "/#");
 
 //
   initializeMQTTConnection_Hive(SERVER_HIVE, "home/" + Name_OMG + "/MERGEtoMQTT/" + SelectedDevice + "/Histo/" + filtre + "/#");
@@ -1934,7 +1934,7 @@ console.log("myinitializeMQTTConnectionchangefiltre", "home/" , Name_OMG , "/GPI
 
  await mqttService.mqttClient.unsubscribe(chcroc)
   chcroc= "home/" + Name_OMG + "/GPIOInputChat/"+ SelectedDevice + "/History/"+ filtreinf + "/#"
-  initializeMQTTConnection("ws://broker.emqx.io:8083/mqtt",chcroc);
+  initializeMQTTConnection("wss://broker.emqx.io:8084/mqtt",chcroc);
 
  lasttime="00:00:00"
  countappuis=0 
