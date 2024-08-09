@@ -1,1 +1,2 @@
-python -m http.server
+npm i really-simple-http-server -g
+rserver
